@@ -51,15 +51,19 @@ import org.spout.api.plugin.CommonPlugin;
 public class SuperFlowPlugin extends CommonPlugin {
 	private File baseDir;
 
+	private Events events;
+
 	@Override
 	public void onEnable() {
 		baseDir = new File(getDataFolder(), "scripts/");
-		
+
 		if (!baseDir.exists()) {
 			if (!baseDir.mkdirs()) {
 				getLogger().log(Level.SEVERE, "Could not create the scripts directory!");
 			}
 		}
+
+		events = new Events(this);
 
 		setupRhino();
 
@@ -106,6 +110,9 @@ public class SuperFlowPlugin extends CommonPlugin {
 
 			Object wrappedEngine = Context.javaToJS(Spout.getEngine(), scope);
 			ScriptableObject.putProperty(scope, "engine", wrappedEngine);
+
+			Object wrappedEvents = Context.javaToJS(events, scope);
+			ScriptableObject.putProperty(scope, "events", wrappedEvents);
 
 			for (Entry<String, String> entry : scripts.entrySet()) {
 				cx.evaluateString(scope, entry.getValue(), entry.getKey(), 1, null);

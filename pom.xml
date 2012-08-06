@@ -3,19 +3,19 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.simplyian</groupId>
-	<artifactId>spoutscript</artifactId>
+	<artifactId>superflow</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<inceptionYear>2012</inceptionYear>
 
 	<!-- Description -->
-	<name>SpoutScript</name>
+	<name>SuperFlow</name>
 	<url>http://thedevteam.org</url>
 	<description>${project.name} is a plugin for Spout which attempts to bring modding to the masses. It executes Javascript retrieved from a package manager.</description>
 
 	<!-- Properties -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<mainClass>com.simplyian.spoutscript.SpoutScriptPlugin</mainClass>
+		<mainClass>com.simplyian.superflow.SuperFlowPlugin</mainClass>
 		<apiVersion>dev-SNAPSHOT</apiVersion>
 		<buildNumber>0</buildNumber>
 

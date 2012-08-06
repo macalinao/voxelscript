@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.simplyian</groupId>
+	<artifactId>spoutscript</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<inceptionYear>2012</inceptionYear>
+
+	<!-- Description -->
+	<name>SpoutScript</name>
+	<url>http://thedevteam.org</url>
+	<description>${project.name} is a plugin for Spout which attempts to bring modding to the masses. It executes Javascript retrieved from a package manager.</description>
+
+	<!-- Properties -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<mainClass>com.simplyian.spoutscript.SpoutScriptPlugin</mainClass>
+		<apiVersion>dev-SNAPSHOT</apiVersion>
+		<buildNumber>0</buildNumber>
+
+		<powermock.version>1.4.11</powermock.version>
+		<github.global.server>github</github.global.server>
+	</properties>
+
+	<!-- License -->
+	<licenses>
+		<license>
+			<name>Apache License Version 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<!-- Source code -->
+	<scm>
+		<developerConnection>scm:git:git@github.com:simplyianm/${project.name}.git</developerConnection>
+		<connection>scm:git:git://github.com/simplyianm/${project.name}.git</connection>
+		<url>https://github.com/simplyianm/${project.name}</url>
+	</scm>
+
+	<!-- Issue Management -->
+	<issueManagement>
+		<system>github</system>
+		<url>http://github.com/simplyianm/${project.name}/issues</url>
+	</issueManagement>
+
+	<!-- Continuous integration -->
+	<ciManagement>
+		<system>travis-ci</system>
+		<url>http://travis-ci.org/#!/simplyianm/${project.name}</url>
+	</ciManagement>
+
+	<!-- Organization -->
+	<organization>
+		<name>THEDevTeam</name>
+		<url>http://thedevteam.org</url>
+	</organization>
+
+	<!-- Repository locations -->
+	<repositories>
+		<repository>
+			<id>spout-repo</id>
+			<url>http://repo.spout.org</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spout-plugins</id>
+			<url>http://repo.spout.org</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<!-- Dependencies -->
+	<dependencies>
+		<!-- Compile -->
+		<!-- SpoutAPI -->
+		<dependency>
+			<groupId>org.spout</groupId>
+			<artifactId>spoutapi</artifactId>
+			<version>${apiVersion}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- Rhino - Javascript parser -->
+		<dependency>
+			<groupId>rhino</groupId>
+			<artifactId>js</artifactId>
+			<version>1.7R2</version>
+			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
+
+		<!-- Test -->
+		<!-- JUnit - Unit Testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<version>${powermock.version}</version>
+			<scope>test</scope>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito</artifactId>
+			<version>${powermock.version}</version>
+			<scope>test</scope>
+			<type>jar</type>
+		</dependency>
+	</dependencies>
+
+	<!-- Build -->
+	<build>
+		<defaultGoal>clean install</defaultGoal>
+
+		<!-- Resources -->
+		<resources>
+			<resource>
+				<targetPath>.</targetPath>
+				<filtering>false</filtering>
+				<directory>${basedir}</directory>
+				<includes>
+					<include>LICENSE.txt</include>
+				</includes>
+			</resource>
+			<resource>
+				<targetPath>.</targetPath>
+				<filtering>true</filtering>
+				<directory>${basedir}/src/main/resources</directory>
+				<includes>
+					<include>properties.yml</include>
+				</includes>
+			</resource>
+		</resources>
+
+		<!-- Plugins -->
+		<plugins>
+			<!-- License header formatting plugin -->
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>1.10.b1</version>
+				<executions>
+					<execution>
+						<phase>clean</phase>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<quiet>true</quiet>
+					<encoding>UTF-8</encoding>
+					<strictCheck>true</strictCheck>
+					<header>${basedir}/HEADER.txt</header>
+					<keywords>
+						<keyword>${project.name}</keyword>
+						<keyword>license</keyword>
+					</keywords>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<properties>
+						<name>${project.name}</name>
+						<url>${project.organization.url}</url>
+						<license>Apache License Version 2</license>
+						<licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
+						<copyright>Copyright (c) ${project.inceptionYear}-2012, ${project.organization.name}</copyright>
+					</properties>
+					<includes>
+						<include>src/main/java/**</include>
+						<include>src/test/java/**</include>
+					</includes>
+				</configuration>
+			</plugin>
+			<!-- Version strip plugin -->
+			<plugin>
+				<groupId>com.sourcesense.maven</groupId>
+				<artifactId>maven-nosnapshot-plugin</artifactId>
+				<version>0.0.7-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>strip</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<version>${project.version}</version>
+					<propertyName>releaseVersion</propertyName>
+				</configuration>
+			</plugin>
+			<!-- Compiler plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<compilerArguments>
+						<O>-Xlint:all</O>
+						<O>-Xlint:-path</O>
+					</compilerArguments>
+					<showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+				</configuration>
+			</plugin>
+			<!-- Uber JAR creation -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<artifactSet>
+								<includes>
+									<include>rhino:js</include>
+								</includes>
+							</artifactSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Testing plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12</version>
+				<configuration>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.sourcesense.maven</groupId>
+										<artifactId>maven-nosnapshot-plugin</artifactId>
+										<versionRange>[0.0.7-SNAPSHOT,)</versionRange>
+										<goals>
+											<goal>strip</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

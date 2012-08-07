@@ -36,7 +36,6 @@ package com.simplyian.superflow;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,9 +47,13 @@ import org.mozilla.javascript.ScriptableObject;
 import org.spout.api.Spout;
 import org.spout.api.plugin.CommonPlugin;
 
+import com.simplyian.superflow.modules.Commands;
+import com.simplyian.superflow.modules.Events;
+
 public class SuperFlowPlugin extends CommonPlugin {
 	private File baseDir;
-
+	
+	private Commands commands;
 	private Events events;
 
 	@Override
@@ -63,6 +66,7 @@ public class SuperFlowPlugin extends CommonPlugin {
 			}
 		}
 
+		commands = new Commands(this);
 		events = new Events(this);
 
 		setupRhino();
@@ -110,6 +114,9 @@ public class SuperFlowPlugin extends CommonPlugin {
 
 			Object wrappedEngine = Context.javaToJS(Spout.getEngine(), scope);
 			ScriptableObject.putProperty(scope, "engine", wrappedEngine);
+
+			Object wrappedCommands = Context.javaToJS(commands, scope);
+			ScriptableObject.putProperty(scope, "commands", wrappedCommands);
 
 			Object wrappedEvents = Context.javaToJS(events, scope);
 			ScriptableObject.putProperty(scope, "events", wrappedEvents);

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.simplyian.superflow;
+package com.simplyian.superflow.modules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +79,17 @@ import org.spout.api.event.world.RegionLoadEvent;
 import org.spout.api.event.world.RegionUnloadEvent;
 import org.spout.api.event.world.WorldLoadEvent;
 import org.spout.api.event.world.WorldUnloadEvent;
+import org.spout.api.plugin.Plugin;
 
+import com.simplyian.superflow.SuperFlowPlugin;
+
+/**
+ * The Events module.
+ * 
+ * <p>
+ * Provides an easy way to register events.
+ * </p>
+ */
 public class Events {
 	private final SuperFlowPlugin plugin;
 	private final Map<String, Class<? extends Event>> events = new HashMap<String, Class<? extends Event>>();
@@ -182,12 +192,23 @@ public class Events {
 	}
 
 	/**
+	 * Defines an event from a plugin.
+	 * 
+	 * @param plugin
+	 * @param name
+	 * @param clazz
+	 */
+	public void define(Plugin plugin, String name, Class<? extends Event> clazz) {
+		define(plugin.getName() + ":" + name, clazz);
+	}
+
+	/**
 	 * Defines an event.
 	 * 
 	 * @param name
 	 * @param clazz
 	 */
-	public void define(String name, Class<? extends Event> clazz) {
+	private void define(String name, Class<? extends Event> clazz) {
 		if (events.put(name.toLowerCase(), clazz) != null) {
 			plugin.getLogger().log(Level.WARNING, "Duplicate event registered: '" + name + "' for '" + clazz.getCanonicalName() + "'.");
 		}

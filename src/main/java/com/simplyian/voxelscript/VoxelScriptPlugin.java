@@ -1,4 +1,21 @@
 /*
+ * This file is part of ScriptEngine.
+ *
+ * Copyright (c) 2012-2012, THEDevTeam <http://thedevteam.org/>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
  * This file is part of SuperFlow.
  *
  * Copyright (c) 2012-2012, THEDevTeam <http://thedevteam.org/>
@@ -32,7 +49,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.simplyian.superflow;
+package com.simplyian.voxelscript;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,12 +64,12 @@ import org.mozilla.javascript.ScriptableObject;
 import org.spout.api.Spout;
 import org.spout.api.plugin.CommonPlugin;
 
-import com.simplyian.superflow.modules.Commands;
-import com.simplyian.superflow.modules.Events;
+import com.simplyian.voxelscript.modules.Commands;
+import com.simplyian.voxelscript.modules.Events;
 
-public class SuperFlowPlugin extends CommonPlugin {
+public class VoxelScriptPlugin extends CommonPlugin {
 	private File baseDir;
-	
+
 	private Commands commands;
 	private Events events;
 
@@ -108,21 +125,39 @@ public class SuperFlowPlugin extends CommonPlugin {
 			scripts.put(file.getName(), script);
 		}
 
-		Context cx = Context.enter();
 		try {
-			Scriptable scope = cx.initStandardObjects();
+			// Initialize the top scope
+			Context cx = Context.enter();
+			Scriptable mainScope = cx.initStandardObjects();
 
-			Object wrappedEngine = Context.javaToJS(Spout.getEngine(), scope);
-			ScriptableObject.putProperty(scope, "engine", wrappedEngine);
+			Object wrappedEngine = Context.javaToJS(Spout.getEngine(), mainScope);
+			ScriptableObject.putProperty(mainScope, "engine", wrappedEngine);
 
-			Object wrappedCommands = Context.javaToJS(commands, scope);
-			ScriptableObject.putProperty(scope, "commands", wrappedCommands);
+			Object wrappedCommands = Context.javaToJS(commands, mainScope);
+			ScriptableObject.putProperty(mainScope, "commands", wrappedCommands);
 
-			Object wrappedEvents = Context.javaToJS(events, scope);
-			ScriptableObject.putProperty(scope, "events", wrappedEvents);
+			Object wrappedEvents = Context.javaToJS(events, mainScope);
+			ScriptableObject.putProperty(mainScope, "events", wrappedEvents);
 
 			for (Entry<String, String> entry : scripts.entrySet()) {
-				cx.evaluateString(scope, entry.getValue(), entry.getKey(), 1, null);
+				Scriptable scriptScope = cx.newObject(mainScope);
+				scriptScope.setPrototype(mainScope);
+				scriptScope.setParentScope(null);
+
+				ScriptableObject.putProperty(scriptScope, "meta", null);
+				ScriptableObject.putProperty(scriptScope, "exports", null);
+
+				cx.evaluateString(scriptScope, entry.getValue(), entry.getKey(), 1, null);
+
+				Scriptable meta = (Scriptable) ScriptableObject.getProperty(scriptScope, "meta");
+				Object nameObj = meta.get("name", meta);
+				if (!(nameObj instanceof String)) {
+					getLogger().log(Level.WARNING, "Could not load the script '" + entry.getValue() + "' due to there not being a name!");
+				}
+				String name = (String) nameObj;
+
+				Scriptable exports = (Scriptable) ScriptableObject.getProperty(scriptScope, "exports");
+				System.out.println("Loaded '" + name + "'");
 			}
 		} finally {
 			Context.exit();

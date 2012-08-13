@@ -1,4 +1,21 @@
 /*
+ * This file is part of ScriptEngine.
+ *
+ * Copyright (c) 2012-2012, THEDevTeam <http://thedevteam.org/>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
  * This file is part of SuperFlow.
  *
  * Copyright (c) 2012-2012, THEDevTeam <http://thedevteam.org/>
@@ -15,7 +32,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.simplyian.superflow.modules;
+package com.simplyian.voxelscript.modules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +98,7 @@ import org.spout.api.event.world.WorldLoadEvent;
 import org.spout.api.event.world.WorldUnloadEvent;
 import org.spout.api.plugin.Plugin;
 
-import com.simplyian.superflow.SuperFlowPlugin;
+import com.simplyian.voxelscript.VoxelScriptPlugin;
 
 /**
  * The Events module.
@@ -91,10 +108,10 @@ import com.simplyian.superflow.SuperFlowPlugin;
  * </p>
  */
 public class Events {
-	private final SuperFlowPlugin plugin;
+	private final VoxelScriptPlugin plugin;
 	private final Map<String, Class<? extends Event>> events = new HashMap<String, Class<? extends Event>>();
 
-	public Events(SuperFlowPlugin plugin) {
+	public Events(VoxelScriptPlugin plugin) {
 		this.plugin = plugin;
 
 		initializeCoreEvents();

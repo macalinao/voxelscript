@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.simplyian.voxelscript.modules;
+package com.simplyian.voxelscript.modules.commands;
 
 import java.util.logging.Level;
 
@@ -43,7 +43,7 @@ public class Commands {
 	 * @param name
 	 * @param executor
 	 */
-	public void define(String name, CommandExecutor executor) {
+	public void define(String name, final VSCommandExecutor executor) {
 		Command cmd = plugin.getEngine().getRootCommand().getChild(name);
 		if (cmd != null) {
 			plugin.getLogger().log(Level.WARNING, "The command '" + name + "' already exists; skipping registration.");
@@ -51,39 +51,11 @@ public class Commands {
 		}
 
 		cmd = plugin.getEngine().getRootCommand().addSubCommand(plugin, name);
-		cmd.setExecutor(executor);
-	}
-
-	/**
-	 * Aliases the given command sequence.
-	 * 
-	 * @param name
-	 *            The command or command sequence. This can be one or multiple
-	 *            words.
-	 * @param alias
-	 *            The alias of the command to use. This must be one word.
-	 */
-	public void alias(String name, String alias) {
-		Command rootCmd = plugin.getEngine().getRootCommand();
-
-		alias = alias.trim();
-		if (alias.contains(" ")) {
-			plugin.getLogger().log(Level.WARNING, "Invalid alias name '" + alias + "'.");
-			return;
-		}
-
-		Command aliasCmd = rootCmd.getChild(alias);
-		if (aliasCmd != null) {
-			plugin.getLogger().log(Level.WARNING, "A command with the name '" + name + "' already exists; skipping aliasing.");
-			return;
-		}
-
-		aliasCmd = rootCmd.addSubCommand(plugin, alias);
-		aliasCmd.setExecutor(new CommandExecutor() {
+		cmd.setExecutor(new CommandExecutor() {
 
 			@Override
 			public boolean processCommand(CommandSource source, Command command, CommandContext args) throws CommandException {
-				plugin.getEngine().getRootCommand().execute(source, command.getPreferredName(), args.getRawArgs(), false);
+				executor.execute(source, args);
 				return true;
 			}
 		});

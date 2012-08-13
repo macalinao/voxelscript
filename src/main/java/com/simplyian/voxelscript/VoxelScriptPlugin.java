@@ -17,42 +17,26 @@
  */
 package com.simplyian.voxelscript;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-import org.spout.api.Spout;
 import org.spout.api.plugin.CommonPlugin;
 
-import com.simplyian.voxelscript.modules.Commands;
-import com.simplyian.voxelscript.modules.Events;
+import com.simplyian.voxelscript.modules.ModuleManager;
+import com.simplyian.voxelscript.script.ScriptManager;
 
 public class VoxelScriptPlugin extends CommonPlugin {
-	private File baseDir;
-
-	private Commands commands;
-	private Events events;
+	private static VoxelScriptPlugin _instance;
+	private ModuleManager moduleManager;
+	private ScriptManager scriptManager;
 
 	@Override
 	public void onEnable() {
-		baseDir = new File(getDataFolder(), "scripts/");
+		_instance = this;
 
-		if (!baseDir.exists()) {
-			if (!baseDir.mkdirs()) {
-				getLogger().log(Level.SEVERE, "Could not create the scripts directory!");
-			}
-		}
-
-		commands = new Commands(this);
-		events = new Events(this);
-
-		setupRhino();
+		moduleManager = new ModuleManager(this);
+		scriptManager = new ScriptManager(this);
+		
+		scriptManager.loadScripts();
 
 		getLogger().log(Level.INFO, "SpoutScript enabled!");
 	}
@@ -62,71 +46,11 @@ public class VoxelScriptPlugin extends CommonPlugin {
 		getLogger().log(Level.INFO, "SpoutScript disabled!");
 	}
 
-	/**
-	 * Load all scripts in the scripts folder.
-	 */
-	private void setupRhino() {
-		Map<String, String> scripts = new HashMap<String, String>();
+	public ModuleManager getModuleManager() {
+		return moduleManager;
+	}
 
-		for (File file : baseDir.listFiles()) {
-			if (!file.getName().endsWith(".js")) {
-				continue;
-			}
-
-			int ch;
-			StringBuffer strContent = new StringBuffer("");
-			FileInputStream fin = null;
-			try {
-				fin = new FileInputStream(file);
-				while ((ch = fin.read()) != -1) {
-					strContent.append((char) ch);
-				}
-				fin.close();
-			} catch (Exception ex) {
-				getLogger().log(Level.SEVERE, "Could not read file " + file.getName() + "!", ex);
-			}
-
-			String script = strContent.toString();
-
-			scripts.put(file.getName(), script);
-		}
-
-		try {
-			// Initialize the top scope
-			Context cx = Context.enter();
-			Scriptable mainScope = cx.initStandardObjects();
-
-			Object wrappedEngine = Context.javaToJS(Spout.getEngine(), mainScope);
-			ScriptableObject.putProperty(mainScope, "engine", wrappedEngine);
-
-			Object wrappedCommands = Context.javaToJS(commands, mainScope);
-			ScriptableObject.putProperty(mainScope, "commands", wrappedCommands);
-
-			Object wrappedEvents = Context.javaToJS(events, mainScope);
-			ScriptableObject.putProperty(mainScope, "events", wrappedEvents);
-
-			for (Entry<String, String> entry : scripts.entrySet()) {
-				Scriptable scriptScope = cx.newObject(mainScope);
-				scriptScope.setPrototype(mainScope);
-				scriptScope.setParentScope(null);
-
-				ScriptableObject.putProperty(scriptScope, "meta", null);
-				ScriptableObject.putProperty(scriptScope, "exports", null);
-
-				cx.evaluateString(scriptScope, entry.getValue(), entry.getKey(), 1, null);
-
-				Scriptable meta = (Scriptable) ScriptableObject.getProperty(scriptScope, "meta");
-				Object nameObj = meta.get("name", meta);
-				if (!(nameObj instanceof String)) {
-					getLogger().log(Level.WARNING, "Could not load the script '" + entry.getValue() + "' due to there not being a name!");
-				}
-				String name = (String) nameObj;
-
-				Scriptable exports = (Scriptable) ScriptableObject.getProperty(scriptScope, "exports");
-				System.out.println("Loaded '" + name + "'");
-			}
-		} finally {
-			Context.exit();
-		}
+	public static VoxelScriptPlugin getInstance() {
+		return _instance;
 	}
 }

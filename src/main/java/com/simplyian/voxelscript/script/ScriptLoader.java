@@ -41,86 +41,22 @@ public class ScriptLoader {
 		this.plugin = plugin;
 	}
 
-	public List<Script> loadScripts() {
-		checkDirectory();
-
-		Map<String, String> scripts = readScripts(baseDir);
-		return executeScripts(scripts);
-	}
-
-	private void checkDirectory() {
-		baseDir = new File(plugin.getDataFolder(), "scripts/");
-
-		if (!baseDir.exists()) {
-			if (!baseDir.mkdirs()) {
-				plugin.getLogger().log(Level.SEVERE, "Could not create the scripts directory!");
-			}
-		}
-	}
-
-	/**
-	 * Reads the scripts in the given directory.
-	 * 
-	 * @param directory
-	 * @return
-	 */
-	private Map<String, String> readScripts(File directory) {
-		Map<String, String> scripts = new HashMap<String, String>();
-
-		for (File file : directory.listFiles()) {
-			if (!file.getName().endsWith(".js")) {
-				continue;
-			}
-
-			int ch;
-			StringBuffer strContent = new StringBuffer("");
-			FileInputStream fin = null;
-			try {
-				fin = new FileInputStream(file);
-				while ((ch = fin.read()) != -1) {
-					strContent.append((char) ch);
-				}
-				fin.close();
-			} catch (Exception ex) {
-				plugin.getLogger().log(Level.SEVERE, "Could not read file " + file.getName() + "!", ex);
-			}
-
-			String script = strContent.toString();
-
-			scripts.put(file.getName(), script);
-		}
-
-		return scripts;
-	}
-
-	/**
-	 * Executes the given scripts in the map.
-	 * 
-	 * @param scripts
-	 * @return The list of scripts
-	 */
-	private List<Script> executeScripts(Map<String, String> scripts) {
-		List<Script> scriptList = new ArrayList<Script>();
+	public Script loadScript(Context cx, Scriptable scope, String name, File file) {
+		int ch;
+		StringBuffer strContent = new StringBuffer("");
+		FileInputStream fin = null;
 		try {
-			// Initialize the main scope
-			Context cx = Context.enter();
-			Scriptable mainScope = cx.initStandardObjects();
-			plugin.getModuleManager().setupModuleFunction(mainScope);
-
-			for (Entry<String, String> entry : scripts.entrySet()) {
-				Scriptable scriptScope = cx.newObject(mainScope);
-				scriptScope.setPrototype(mainScope);
-				scriptScope.setParentScope(null);
-
-				Script s = loadScript(cx, scriptScope, entry.getKey(), entry.getValue());
-				if (s != null) {
-					scriptList.add(s);
-				}
+			fin = new FileInputStream(file);
+			while ((ch = fin.read()) != -1) {
+				strContent.append((char) ch);
 			}
-		} finally {
-			Context.exit();
+			fin.close();
+		} catch (Exception ex) {
+			plugin.getLogger().log(Level.SEVERE, "Could not read script " + file.getName() + "!", ex);
 		}
-		return scriptList;
+
+		String script = strContent.toString();
+		return loadScript(cx, scope, name, script);
 	}
 
 	/**

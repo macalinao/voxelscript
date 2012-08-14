@@ -28,10 +28,10 @@ import com.simplyian.voxelscript.VoxelScriptPlugin;
  * The script meta.
  */
 public class ScriptMeta {
-	private String name;
-	private String description;
-	private String version;
-	private String author;
+	private String name = "";
+	private String description = "Yet another VoxelScript script";
+	private String version = "Unknown";
+	private String author = "Anonymous";
 
 	private ScriptMeta() {
 	}
@@ -62,6 +62,10 @@ public class ScriptMeta {
 	public static ScriptMeta loadMeta(String fileName, Scriptable meta) {
 		ScriptMeta ret = new ScriptMeta();
 
+		if (meta == null) {
+			return ret;
+		}
+
 		// Name
 		Object nameObj = meta.get("name", meta);
 		if (nameObj == null || !(nameObj instanceof String)) {
@@ -72,25 +76,19 @@ public class ScriptMeta {
 
 		// Description
 		Object descObj = meta.get("description", meta);
-		if (descObj == null || !(descObj instanceof String)) {
-			ret.description = "Yet another VoxelScript script";
-		} else {
+		if (descObj != null && descObj instanceof String) {
 			ret.description = descObj.toString();
 		}
 
 		// Version
 		Object versionObj = meta.get("version", meta);
-		if (versionObj == null || !(versionObj instanceof String)) {
-			ret.version = "Unknown";
-		} else {
+		if (versionObj != null && versionObj instanceof String) {
 			ret.version = versionObj.toString();
 		}
 
 		// Author
 		Object authorObj = meta.get("author", meta);
-		if (authorObj == null || !(authorObj instanceof String)) {
-			ret.author = "Anonymous";
-		} else {
+		if (authorObj != null && authorObj instanceof String) {
 			ret.author = authorObj.toString();
 		}
 

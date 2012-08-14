@@ -17,31 +17,35 @@
  */
 package com.simplyian.voxelscript.script;
 
+import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
-public class Script {
-	private final ScriptMeta meta;
-	private final Scriptable exports;
+public class ScriptFunction extends BaseFunction {
+	private final ScriptManager scriptManager;
 
-	public Script(ScriptMeta meta, Scriptable exports) {
-		this.meta = meta;
-		this.exports = exports;
-	}
-
-	public ScriptMeta getMeta() {
-		return meta;
-	}
-
-	public Scriptable getExports() {
-		return exports;
-	}
-
-	public String getName() {
-		return meta.getName();
+	public ScriptFunction(ScriptManager scriptManager) {
+		this.scriptManager = scriptManager;
 	}
 
 	@Override
-	public String toString() {
-		return "Script: " + getName();
+	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+		if (args.length < 1) {
+			return null;
+		}
+
+		String scriptName = args[0].toString();
+		Script script = scriptManager.getScript(scriptName);
+
+		if (script != null) {
+			return script.getExports();
+		}
+
+		return scriptManager.loadScript(cx, scope, scriptName);
+	}
+
+	@Override
+	public Scriptable construct(Context cx, Scriptable scope, Object[] args) {
+		throw new RuntimeException("Cannot invoke script() as a constructor!");
 	}
 }

@@ -35,7 +35,7 @@ public class VoxelScriptPlugin extends CommonPlugin {
 
 		moduleManager = new ModuleManager(this);
 		scriptManager = new ScriptManager(this);
-		
+
 		scriptManager.loadScripts();
 
 		getLogger().log(Level.INFO, "SpoutScript enabled!");
@@ -48,6 +48,10 @@ public class VoxelScriptPlugin extends CommonPlugin {
 
 	public ModuleManager getModuleManager() {
 		return moduleManager;
+	}
+
+	public ScriptManager getScriptManager() {
+		return scriptManager;
 	}
 
 	public static VoxelScriptPlugin getInstance() {

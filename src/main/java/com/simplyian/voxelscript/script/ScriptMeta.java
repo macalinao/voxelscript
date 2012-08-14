@@ -94,8 +94,4 @@ public class ScriptMeta {
 
 		return ret;
 	}
-
-	private static Logger getLogger() {
-		return VoxelScriptPlugin.getInstance().getLogger();
-	}
 }

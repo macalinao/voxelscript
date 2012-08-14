@@ -35,9 +35,8 @@ public class ScriptManager {
 	private final VoxelScriptPlugin plugin;
 	private final ScriptLoader loader;
 	private final ScriptFunction sf;
-	private List<File> searchPaths;
-
 	private final Map<String, Script> scripts = new HashMap<String, Script>();
+	private List<File> searchPaths;
 
 	public ScriptManager(VoxelScriptPlugin plugin) {
 		this.plugin = plugin;

@@ -19,11 +19,8 @@ package com.simplyian.voxelscript.script;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.mozilla.javascript.Context;
@@ -35,13 +32,29 @@ import com.simplyian.voxelscript.VoxelScriptPlugin;
 
 public class ScriptLoader {
 	private final VoxelScriptPlugin plugin;
-	private File baseDir;
+
+	// Quick and dirty way to check if something is already being loaded
+	private Set<String> loading = new HashSet<String>();
 
 	public ScriptLoader(VoxelScriptPlugin plugin) {
 		this.plugin = plugin;
 	}
 
+	/**
+	 * Loads the given script.
+	 * 
+	 * @param cx
+	 * @param scope
+	 * @param name
+	 * @param file
+	 * @return
+	 */
 	public Script loadScript(Context cx, Scriptable scope, String name, File file) {
+		if (loading.contains(name.toLowerCase())) {
+			plugin.getLogger().log(Level.WARNING, "Circular dependency detected for a script wanting '" + name + "'. Stopping...");
+			return null;
+		}
+
 		int ch;
 		StringBuffer strContent = new StringBuffer("");
 		FileInputStream fin = null;
@@ -75,12 +88,19 @@ public class ScriptLoader {
 			ScriptableObject.putProperty(scope, "meta", null);
 			ScriptableObject.putProperty(scope, "exports", null);
 
+			// Execute the JS
+			loading.add(name.toLowerCase());
 			cx.evaluateString(scope, script, name, 1, null);
+			loading.remove(name.toLowerCase());
 
+			// Get the meta
 			Scriptable rawMeta = (Scriptable) ScriptableObject.getProperty(scope, "meta");
 			ScriptMeta meta = ScriptMeta.loadMeta(name, rawMeta);
 
+			// And the exports
 			Scriptable exports = (Scriptable) ScriptableObject.getProperty(scope, "exports");
+
+			// Create the script
 			return new Script(meta, exports);
 		} catch (EcmaError ex) {
 			plugin.getLogger().log(Level.SEVERE, "Could not enable script '" + name + "' due to error", ex);

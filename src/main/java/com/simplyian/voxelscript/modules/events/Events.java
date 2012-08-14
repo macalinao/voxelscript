@@ -17,6 +17,7 @@
  */
 package com.simplyian.voxelscript.modules.events;
 
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -80,6 +81,49 @@ import org.spout.api.event.world.RegionUnloadEvent;
 import org.spout.api.event.world.WorldLoadEvent;
 import org.spout.api.event.world.WorldUnloadEvent;
 import org.spout.api.plugin.Plugin;
+import org.spout.vanilla.event.block.BlockActionEvent;
+import org.spout.vanilla.event.block.FurnaceBurnEvent;
+import org.spout.vanilla.event.block.SignChangeEvent;
+import org.spout.vanilla.event.block.SignUpdateEvent;
+import org.spout.vanilla.event.entity.CraftingResultEvent;
+import org.spout.vanilla.event.entity.EntityAnimationEvent;
+import org.spout.vanilla.event.entity.EntityCollectItemEvent;
+import org.spout.vanilla.event.entity.EntityCombustEvent;
+import org.spout.vanilla.event.entity.EntityExplodeEvent;
+import org.spout.vanilla.event.entity.EntityMetaChangeEvent;
+import org.spout.vanilla.event.entity.EntityStatusEvent;
+import org.spout.vanilla.event.entity.EntityTameEvent;
+import org.spout.vanilla.event.entity.EntityTargetEvent;
+import org.spout.vanilla.event.entity.PotionSplashEvent;
+import org.spout.vanilla.event.entity.ProjectileHitEvent;
+import org.spout.vanilla.event.entity.SlimeSplitEvent;
+import org.spout.vanilla.event.entity.VanillaEntityDeathEvent;
+import org.spout.vanilla.event.entity.VanillaEntityTeleportEvent;
+import org.spout.vanilla.event.game.ServerListPingEvent;
+import org.spout.vanilla.event.player.PlayerBedEvent;
+import org.spout.vanilla.event.player.PlayerBucketEvent;
+import org.spout.vanilla.event.player.PlayerDeathEvent;
+import org.spout.vanilla.event.player.PlayerFishEvent;
+import org.spout.vanilla.event.player.PlayerFoodSaturationChangeEvent;
+import org.spout.vanilla.event.player.PlayerGameModeChangedEvent;
+import org.spout.vanilla.event.player.PlayerHungerChangeEvent;
+import org.spout.vanilla.event.player.PlayerLevelChangeEvent;
+import org.spout.vanilla.event.player.PlayerRespawnEvent;
+import org.spout.vanilla.event.player.PlayerSlotChangeEvent;
+import org.spout.vanilla.event.player.network.PlayerGameStateEvent;
+import org.spout.vanilla.event.player.network.PlayerKeepAliveEvent;
+import org.spout.vanilla.event.player.network.PlayerPingChangedEvent;
+import org.spout.vanilla.event.player.network.PlayerUpdateStatsEvent;
+import org.spout.vanilla.event.player.network.PlayerUpdateUserListEvent;
+import org.spout.vanilla.event.window.WindowCloseEvent;
+import org.spout.vanilla.event.window.WindowOpenEvent;
+import org.spout.vanilla.event.window.WindowPropertyEvent;
+import org.spout.vanilla.event.window.WindowSetSlotEvent;
+import org.spout.vanilla.event.window.WindowSetSlotsEvent;
+import org.spout.vanilla.event.world.PlayExplosionEffectEvent;
+import org.spout.vanilla.event.world.PlayParticleEffectEvent;
+import org.spout.vanilla.event.world.PlaySoundEffectEvent;
+import org.spout.vanilla.event.world.WeatherChangeEvent;
 
 import com.simplyian.voxelscript.VoxelScriptPlugin;
 
@@ -174,6 +218,58 @@ public class Events {
 		// World events
 		define("WorldLoad", WorldLoadEvent.class);
 		define("WorldUnload", WorldUnloadEvent.class);
+
+		// Vanilla events
+		if (plugin.getEngine().getPluginManager().getPlugin("Vanilla") != null) {
+			define("BlockAction", BlockActionEvent.class);
+			define("FurnaceBurn", FurnaceBurnEvent.class);
+			define("SignChange", SignChangeEvent.class);
+			define("SignUpdate", SignUpdateEvent.class);
+			define("CraftingResult", CraftingResultEvent.class);
+
+			define("EntityAnimation", EntityAnimationEvent.class);
+			define("EntityCollectItem", EntityCollectItemEvent.class);
+			define("EntityCombust", EntityCombustEvent.class);
+			define("EntityExplode", EntityExplodeEvent.class);
+			define("EntityMetaChange", EntityMetaChangeEvent.class);
+			define("EntityStatus", EntityStatusEvent.class);
+			define("EntityTame", EntityTameEvent.class);
+			define("EntityTarget", EntityTargetEvent.class);
+
+			define("PotionSplash", PotionSplashEvent.class);
+			define("ProjectileHit", ProjectileHitEvent.class);
+			define("SlimeSplit", SlimeSplitEvent.class);
+			define("VanillaEntityDeath", VanillaEntityDeathEvent.class);
+			define("VanillaEntityTeleport", VanillaEntityTeleportEvent.class);
+			define("ServerListPing", ServerListPingEvent.class);
+
+			define("PlayerBed", PlayerBedEvent.class);
+			define("PlayerBucket", PlayerBucketEvent.class);
+			define("PlayerDeath", PlayerDeathEvent.class);
+			define("PlayerFish", PlayerFishEvent.class);
+			define("PlayerFoodSaturationChange", PlayerFoodSaturationChangeEvent.class);
+			define("PlayerGameModeChanged", PlayerGameModeChangedEvent.class);
+			define("PlayerHungerChange", PlayerHungerChangeEvent.class);
+			define("PlayerLevelChange", PlayerLevelChangeEvent.class);
+			define("PlayerRespawn", PlayerRespawnEvent.class);
+			define("PlayerSlotChange", PlayerSlotChangeEvent.class);
+			define("PlayerGameState", PlayerGameStateEvent.class);
+			define("PlayerKeepAlive", PlayerKeepAliveEvent.class);
+			define("PlayerPingChanged", PlayerPingChangedEvent.class);
+			define("PlayerUpdateStats", PlayerUpdateStatsEvent.class);
+			define("PlayerUpdateUserList", PlayerUpdateUserListEvent.class);
+
+			define("WindowClose", WindowCloseEvent.class);
+			define("WindowOpen", WindowOpenEvent.class);
+			define("WindowProperty", WindowPropertyEvent.class);
+			define("WindowSetSlot", WindowSetSlotEvent.class);
+			define("WindowSetSlots", WindowSetSlotsEvent.class);
+
+			define("PlayExplosionEffect", PlayExplosionEffectEvent.class);
+			define("PlayParticleEffect", PlayParticleEffectEvent.class);
+			define("PlaySoundEffect", PlaySoundEffectEvent.class);
+			define("WeatherChange", WeatherChangeEvent.class);
+		}
 	}
 
 	/**

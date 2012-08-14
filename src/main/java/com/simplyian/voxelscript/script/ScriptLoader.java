@@ -84,12 +84,9 @@ public class ScriptLoader {
 	 */
 	private Script loadScript(Context cx, Scriptable scope, String name, String script) {
 		try {
-			// Setup some variables to get the result
-			ScriptableObject.putProperty(scope, "meta", null);
-			ScriptableObject.putProperty(scope, "exports", null);
-
 			// Execute the JS
 			loading.add(name.toLowerCase());
+			cx.evaluateString(scope, "var meta = {}; var exports = {};", name, 1, null);
 			cx.evaluateString(scope, script, name, 1, null);
 			loading.remove(name.toLowerCase());
 

@@ -1,5 +1,5 @@
 /*
- * This file is part of ScriptEngine.
+ * This file is part of VoxelScript.
  *
  * Copyright (c) 2012-2012, THEDevTeam <http://thedevteam.org/>
  *

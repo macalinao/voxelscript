@@ -1,5 +1,5 @@
 /*
- * This file is part of ScriptEngine.
+ * This file is part of VoxelScript.
  *
  * Copyright (c) 2012-2012, THEDevTeam <http://thedevteam.org/>
  *
@@ -17,12 +17,7 @@
  */
 package com.simplyian.voxelscript.script;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.mozilla.javascript.Scriptable;
-
-import com.simplyian.voxelscript.VoxelScriptPlugin;
 
 /**
  * The script meta.

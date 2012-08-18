@@ -54,9 +54,8 @@ public class Commands {
 		cmd.setExecutor(new CommandExecutor() {
 
 			@Override
-			public boolean processCommand(CommandSource source, Command command, CommandContext args) throws CommandException {
+			public void processCommand(CommandSource source, Command command, CommandContext args) throws CommandException {
 				executor.execute(source, args);
-				return true;
 			}
 		});
 	}

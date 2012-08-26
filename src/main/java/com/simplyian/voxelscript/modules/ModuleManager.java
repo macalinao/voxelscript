@@ -55,6 +55,7 @@ public class ModuleManager {
 	private void registerDefaults() {
 		registerModule("commands", new Commands(plugin));
 		registerModule("engine", Spout.getEngine());
+		registerModule("plugins", Spout.getEngine().getPluginManager());
 		registerModule("events", new Events(plugin));
 	}
 

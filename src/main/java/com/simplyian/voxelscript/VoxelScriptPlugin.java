@@ -38,12 +38,12 @@ public class VoxelScriptPlugin extends CommonPlugin {
 
 		scriptManager.loadScripts();
 
-		getLogger().log(Level.INFO, "SpoutScript enabled!");
+		getLogger().log(Level.INFO, "VoxelScript enabled!");
 	}
 
 	@Override
 	public void onDisable() {
-		getLogger().log(Level.INFO, "SpoutScript disabled!");
+		getLogger().log(Level.INFO, "VoxelScript disabled!");
 	}
 
 	public ModuleManager getModuleManager() {

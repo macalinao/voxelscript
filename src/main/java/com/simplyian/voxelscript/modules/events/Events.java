@@ -17,7 +17,6 @@
  */
 package com.simplyian.voxelscript.modules.events;
 
-import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -34,7 +33,6 @@ import org.spout.api.event.chunk.ChunkUnloadEvent;
 import org.spout.api.event.chunk.ChunkUpdatedEvent;
 import org.spout.api.event.entity.EntityChangeWorldEvent;
 import org.spout.api.event.entity.EntityChangedWorldEvent;
-import org.spout.api.event.entity.EntityControllerChangeEvent;
 import org.spout.api.event.entity.EntityDeathEvent;
 import org.spout.api.event.entity.EntityDespawnEvent;
 import org.spout.api.event.entity.EntityHealthChangeEvent;
@@ -46,26 +44,17 @@ import org.spout.api.event.player.ClientPlayerConnectedEvent;
 import org.spout.api.event.player.PlayerBanKickEvent;
 import org.spout.api.event.player.PlayerChatEvent;
 import org.spout.api.event.player.PlayerConnectEvent;
-import org.spout.api.event.player.PlayerHeldItemChangeEvent;
 import org.spout.api.event.player.PlayerInteractEvent;
 import org.spout.api.event.player.PlayerJoinEvent;
 import org.spout.api.event.player.PlayerKickEvent;
 import org.spout.api.event.player.PlayerLeaveEvent;
 import org.spout.api.event.player.PlayerLoginEvent;
 import org.spout.api.event.player.PlayerPreLoginEvent;
-import org.spout.api.event.server.BanChangeEvent;
 import org.spout.api.event.server.NodeBasedEvent;
-import org.spout.api.event.server.PluginDisableEvent;
-import org.spout.api.event.server.PluginEnableEvent;
 import org.spout.api.event.server.PreCommandEvent;
 import org.spout.api.event.server.ServerStartEvent;
 import org.spout.api.event.server.ServerStopEvent;
-import org.spout.api.event.server.ServiceRegisterEvent;
-import org.spout.api.event.server.ServiceUnregisterEvent;
-import org.spout.api.event.server.data.RetrieveDataEvent;
 import org.spout.api.event.server.permissions.PermissionGetAllWithNodeEvent;
-import org.spout.api.event.server.permissions.PermissionGetGroupsEvent;
-import org.spout.api.event.server.permissions.PermissionGroupEvent;
 import org.spout.api.event.server.permissions.PermissionNodeEvent;
 import org.spout.api.event.server.protection.EntityCanBeHarmedEvent;
 import org.spout.api.event.server.protection.EntityCanBreakEvent;
@@ -126,16 +115,22 @@ import org.spout.vanilla.event.world.PlaySoundEffectEvent;
 import org.spout.vanilla.event.world.WeatherChangeEvent;
 
 import com.simplyian.voxelscript.VoxelScriptPlugin;
+import org.spout.api.event.server.*;
+import org.spout.api.event.server.access.BanChangeEvent;
+import org.spout.api.event.server.plugin.PluginDisableEvent;
+import org.spout.api.event.server.plugin.PluginEnableEvent;
+import org.spout.api.event.server.service.ServiceRegisterEvent;
+import org.spout.api.event.server.service.ServiceUnregisterEvent;
+import org.spout.vanilla.event.player.*;
 
 /**
  * The Events module.
- * 
- * <p>
- * Provides an easy way to register events.
- * </p>
+ *
+ * <p> Provides an easy way to register events. </p>
  */
 public class Events {
 	private final VoxelScriptPlugin plugin;
+
 	private final Map<String, Class<? extends Event>> events = new HashMap<String, Class<? extends Event>>();
 
 	public Events(VoxelScriptPlugin plugin) {
@@ -169,7 +164,6 @@ public class Events {
 		// general
 		define("EntityChangedWorld", EntityChangedWorldEvent.class);
 		define("EntityChangeWorld", EntityChangeWorldEvent.class);
-		define("EntityControllerChange", EntityControllerChangeEvent.class);
 		define("EntityDeath", EntityDeathEvent.class);
 		define("EntityDespawn", EntityDespawnEvent.class);
 		define("EntityHealthChange", EntityHealthChangeEvent.class);
@@ -207,8 +201,6 @@ public class Events {
 
 		// Permission Events
 		define("PermissionGetAllWithNode", PermissionGetAllWithNodeEvent.class);
-		define("PermissionGetGroups", PermissionGetGroupsEvent.class);
-		define("PermissionGroup", PermissionGroupEvent.class);
 		define("PermissionNode", PermissionNodeEvent.class);
 
 		// Region Events
@@ -274,7 +266,7 @@ public class Events {
 
 	/**
 	 * Registers a new EventExecutor.
-	 * 
+	 *
 	 * @param event
 	 * @param executor
 	 */
@@ -289,7 +281,7 @@ public class Events {
 
 	/**
 	 * Defines an event from a plugin.
-	 * 
+	 *
 	 * @param plugin
 	 * @param name
 	 * @param clazz
@@ -300,7 +292,7 @@ public class Events {
 
 	/**
 	 * Defines an event.
-	 * 
+	 *
 	 * @param name
 	 * @param clazz
 	 */

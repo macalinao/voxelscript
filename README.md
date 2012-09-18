@@ -1,3 +1,3 @@
-SpoutScript
+VoxelScript
 ===========
 Coming soon!

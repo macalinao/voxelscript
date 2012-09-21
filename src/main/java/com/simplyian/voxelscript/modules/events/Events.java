@@ -50,12 +50,16 @@ import org.spout.api.event.player.PlayerKickEvent;
 import org.spout.api.event.player.PlayerLeaveEvent;
 import org.spout.api.event.player.PlayerLoginEvent;
 import org.spout.api.event.player.PlayerPreLoginEvent;
+import org.spout.api.event.server.*;
 import org.spout.api.event.server.NodeBasedEvent;
 import org.spout.api.event.server.PreCommandEvent;
 import org.spout.api.event.server.ServerStartEvent;
 import org.spout.api.event.server.ServerStopEvent;
+import org.spout.api.event.server.access.BanChangeEvent;
 import org.spout.api.event.server.permissions.PermissionGetAllWithNodeEvent;
 import org.spout.api.event.server.permissions.PermissionNodeEvent;
+import org.spout.api.event.server.plugin.PluginDisableEvent;
+import org.spout.api.event.server.plugin.PluginEnableEvent;
 import org.spout.api.event.server.protection.EntityCanBeHarmedEvent;
 import org.spout.api.event.server.protection.EntityCanBreakEvent;
 import org.spout.api.event.server.protection.EntityCanBuildEvent;
@@ -63,6 +67,8 @@ import org.spout.api.event.server.protection.EntityCanInteractBlockEvent;
 import org.spout.api.event.server.protection.EntityCanInteractEntityEvent;
 import org.spout.api.event.server.protection.EntityEnterProtection;
 import org.spout.api.event.server.protection.EntityLeaveProtection;
+import org.spout.api.event.server.service.ServiceRegisterEvent;
+import org.spout.api.event.server.service.ServiceUnregisterEvent;
 import org.spout.api.event.storage.PlayerLoadEvent;
 import org.spout.api.event.storage.PlayerSaveEvent;
 import org.spout.api.event.world.RegionLoadEvent;
@@ -70,6 +76,7 @@ import org.spout.api.event.world.RegionUnloadEvent;
 import org.spout.api.event.world.WorldLoadEvent;
 import org.spout.api.event.world.WorldUnloadEvent;
 import org.spout.api.plugin.Plugin;
+
 import org.spout.vanilla.event.block.BlockActionEvent;
 import org.spout.vanilla.event.block.FurnaceBurnEvent;
 import org.spout.vanilla.event.block.SignChangeEvent;
@@ -89,6 +96,7 @@ import org.spout.vanilla.event.entity.SlimeSplitEvent;
 import org.spout.vanilla.event.entity.VanillaEntityDeathEvent;
 import org.spout.vanilla.event.entity.VanillaEntityTeleportEvent;
 import org.spout.vanilla.event.game.ServerListPingEvent;
+import org.spout.vanilla.event.player.*;
 import org.spout.vanilla.event.player.PlayerBedEvent;
 import org.spout.vanilla.event.player.PlayerBucketEvent;
 import org.spout.vanilla.event.player.PlayerDeathEvent;
@@ -115,13 +123,6 @@ import org.spout.vanilla.event.world.PlaySoundEffectEvent;
 import org.spout.vanilla.event.world.WeatherChangeEvent;
 
 import com.simplyian.voxelscript.VoxelScriptPlugin;
-import org.spout.api.event.server.*;
-import org.spout.api.event.server.access.BanChangeEvent;
-import org.spout.api.event.server.plugin.PluginDisableEvent;
-import org.spout.api.event.server.plugin.PluginEnableEvent;
-import org.spout.api.event.server.service.ServiceRegisterEvent;
-import org.spout.api.event.server.service.ServiceUnregisterEvent;
-import org.spout.vanilla.event.player.*;
 
 /**
  * The Events module.

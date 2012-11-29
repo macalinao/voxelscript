@@ -58,6 +58,9 @@ public class Events {
         for (Class<?> evtClass : getClasses(Package.getPackage("org.spout.api.event"))) {
             if (evtClass.isAssignableFrom(Event.class)) {
                 Class<Event> evtC = (Class<Event>) evtClass;
+                if (events.containsValue(evtC)) {
+                    continue;
+                }
                 String str = evtC.getSimpleName();
                 define(str.substring(0, str.length() - "Event".length()), evtC);
             }
@@ -68,6 +71,9 @@ public class Events {
             for (Class<?> evtClass : getClasses(Package.getPackage("org.spout.vanilla.event"))) {
                 if (evtClass.isAssignableFrom(Event.class)) {
                     Class<Event> evtC = (Class<Event>) evtClass;
+                    if (events.containsValue(evtC)) {
+                        continue;
+                    }
                     String str = evtC.getSimpleName();
                     define(str.substring(0, str.length() - "Event".length()), evtC);
                 }

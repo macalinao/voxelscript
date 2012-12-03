@@ -53,10 +53,10 @@ public class Events {
         initializeCoreEvents();
     }
 
-    @SuppressWarnings("unchecked")
     private void initializeCoreEvents() {
         for (Class<?> evtClass : getClasses(Package.getPackage("org.spout.api.event"))) {
             if (evtClass.isAssignableFrom(Event.class)) {
+                @SuppressWarnings("unchecked")
                 Class<Event> evtC = (Class<Event>) evtClass;
                 if (events.containsValue(evtC)) {
                     continue;
@@ -70,6 +70,37 @@ public class Events {
         if (plugin.getEngine().getPluginManager().getPlugin("Vanilla") != null) {
             for (Class<?> evtClass : getClasses(Package.getPackage("org.spout.vanilla.event"))) {
                 if (evtClass.isAssignableFrom(Event.class)) {
+                    @SuppressWarnings("unchecked")
+                    Class<Event> evtC = (Class<Event>) evtClass;
+                    if (events.containsValue(evtC)) {
+                        continue;
+                    }
+                    String str = evtC.getSimpleName();
+                    define(str.substring(0, str.length() - "Event".length()), evtC);
+                }
+            }
+        }
+
+        // Politics events
+        if (plugin.getEngine().getPluginManager().getPlugin("Politics") != null) {
+            for (Class<?> evtClass : getClasses(Package.getPackage("com.volumetricpixels.politics.event"))) {
+                if (evtClass.isAssignableFrom(Event.class)) {
+                    @SuppressWarnings("unchecked")
+                    Class<Event> evtC = (Class<Event>) evtClass;
+                    if (events.containsValue(evtC)) {
+                        continue;
+                    }
+                    String str = evtC.getSimpleName();
+                    define(str.substring(0, str.length() - "Event".length()), evtC);
+                }
+            }
+        }
+
+        // DungeonCreeper events
+        if (plugin.getEngine().getPluginManager().getPlugin("DungeonCreeper") != null) {
+            for (Class<?> evtClass : getClasses(Package.getPackage("fr.karang.dungeoncreeper.event"))) {
+                if (evtClass.isAssignableFrom(Event.class)) {
+                    @SuppressWarnings("unchecked")
                     Class<Event> evtC = (Class<Event>) evtClass;
                     if (events.containsValue(evtC)) {
                         continue;

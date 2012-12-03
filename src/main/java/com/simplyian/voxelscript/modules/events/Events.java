@@ -55,6 +55,7 @@ public class Events {
 
     @SuppressWarnings("unchecked")
     private void initializeCoreEvents() {
+        // SpoutAPI events
         for (Class<?> evtClass : getClasses(Package.getPackage("org.spout.api.event"))) {
             if (evtClass.isAssignableFrom(Event.class)) {
                 Class<Event> evtC = (Class<Event>) evtClass;
@@ -73,6 +74,28 @@ public class Events {
                 }
             }
         }
+
+        // Politics events
+        if (plugin.getEngine().getPluginManager().getPlugin("Politics") != null) {
+            for (Class<?> evtClass : getClasses(Package.getPackage("com.volumetricpixels.politics.event"))) {
+                if (evtClass.isAssignableFrom(Event.class)) {
+                    Class<Event> evtC = (Class<Event>) evtClass;
+                    String str = evtC.getSimpleName();
+                    define(str.substring(0, str.length() - "Event".length()), evtC);
+                }
+            }
+        }
+
+        // DungeonCreeper events
+        if (plugin.getEngine().getPluginManager().getPlugin("DungeonCreeper") != null) {
+            for (Class<?> evtClass : getClasses(Package.getPackage("fr.karang.dungeoncreeper.event"))) {
+                if (!events.containsValue(evtClass) && evtClass.isAssignableFrom(Event.class)) {
+                    Class<Event> evtC = (Class<Event>) evtClass;
+                    String str = evtC.getSimpleName();
+                    define(str.substring(0, str.length() - "Event".length()), evtC);
+                }
+            }
+        }
     }
 
     /**
@@ -84,7 +107,7 @@ public class Events {
     public void on(String event, EventExecutor executor) {
         Class<? extends Event> clazz = events.get(event.toLowerCase());
         if (clazz == null) {
-            plugin.getLogger().log(Level.WARNING, "Could not register event '" + event + "' because it does not exist.");
+            plugin.getLogger().log(Level.WARNING, "Could not call event '" + event + "' because it does not exist.");
             return;
         }
         Spout.getEventManager().registerEvent(clazz, Order.LATEST, executor, plugin);
@@ -108,7 +131,9 @@ public class Events {
      * @param clazz
      */
     private void define(String name, Class<? extends Event> clazz) {
-        if (events.put(name.toLowerCase(), clazz) != null) {
+        if (!events.containsValue(clazz)) {
+            events.put(name.toLowerCase(), clazz);
+        } else {
             plugin.getLogger().log(Level.WARNING, "Duplicate event registered: '" + name + "' for '" + clazz.getCanonicalName() + "'.");
         }
     }

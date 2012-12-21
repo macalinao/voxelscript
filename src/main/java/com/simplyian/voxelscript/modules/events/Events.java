@@ -34,6 +34,7 @@ import org.spout.api.event.Event;
 import org.spout.api.event.EventExecutor;
 import org.spout.api.event.Order;
 import org.spout.api.plugin.Plugin;
+import org.spout.api.plugin.PluginManager;
 
 import com.simplyian.voxelscript.VoxelScriptPlugin;
 
@@ -53,24 +54,22 @@ public class Events {
         initializeCoreEvents();
     }
 
-    @SuppressWarnings("unchecked")
     private void initializeCoreEvents() {
-        for (Class<?> evtClass : getClasses(Package.getPackage("org.spout.api.event"))) {
+        loadEventsFromPackage("org.spout.api.event");
+
+        PluginManager pm = Spout.getPluginManager();
+        if (pm.getPlugin("Vanilla") != null) {
+            loadEventsFromPackage("org.spout.vanilla.event");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void loadEventsFromPackage(String pck) {
+        for (Class<?> evtClass : getClasses(Package.getPackage(pck))) {
             if (evtClass.isAssignableFrom(Event.class)) {
                 Class<Event> evtC = (Class<Event>) evtClass;
                 String str = evtC.getSimpleName();
                 define(str.substring(0, str.length() - "Event".length()), evtC);
-            }
-        }
-
-        // Vanilla events
-        if (plugin.getEngine().getPluginManager().getPlugin("Vanilla") != null) {
-            for (Class<?> evtClass : getClasses(Package.getPackage("org.spout.vanilla.event"))) {
-                if (evtClass.isAssignableFrom(Event.class)) {
-                    Class<Event> evtC = (Class<Event>) evtClass;
-                    String str = evtC.getSimpleName();
-                    define(str.substring(0, str.length() - "Event".length()), evtC);
-                }
             }
         }
     }

@@ -44,157 +44,162 @@ import com.simplyian.voxelscript.VoxelScriptPlugin;
  * <p> Provides an easy way to register events. </p>
  */
 public class Events {
-    private final VoxelScriptPlugin plugin;
+	private final VoxelScriptPlugin plugin;
 
-    private final Map<String, Class<? extends Event>> events = new HashMap<String, Class<? extends Event>>();
+	private final Map<String, Class<? extends Event>> events = new HashMap<String, Class<? extends Event>>();
 
-    public Events(VoxelScriptPlugin plugin) {
-        this.plugin = plugin;
+	public Events(VoxelScriptPlugin plugin) {
+		this.plugin = plugin;
 
-        initializeCoreEvents();
-    }
+		initializeCoreEvents();
+	}
 
-    private void initializeCoreEvents() {
-        loadEventsFromPackage("org.spout.api.event");
+	private void initializeCoreEvents() {
+		defineEvents("org.spout.api.event");
 
-        PluginManager pm = Spout.getPluginManager();
-        if (pm.getPlugin("Vanilla") != null) {
-            loadEventsFromPackage("org.spout.vanilla.event");
-        }
-    }
+		PluginManager pm = Spout.getPluginManager();
+		if (pm.getPlugin("Vanilla") != null) {
+			defineEvents("org.spout.vanilla.event");
+		}
+	}
+	
+	/**
+	 * Defines all events in a given package recursively.
+	 * Note: Event classes must end in "Event".
+	 * 
+	 * @param pkg 
+	 */
+	public void defineEvents(String pkg) {
+		for (Class<?> evtClass : getClasses(Package.getPackage(pkg))) {
+			if (evtClass.isAssignableFrom(Event.class)) {
+				Class<Event> evtC = (Class<Event>) evtClass;
+				String str = evtC.getSimpleName();
+				define(str.substring(0, str.length() - "Event".length()), evtC);
+			}
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    public void loadEventsFromPackage(String pck) {
-        for (Class<?> evtClass : getClasses(Package.getPackage(pck))) {
-            if (evtClass.isAssignableFrom(Event.class)) {
-                Class<Event> evtC = (Class<Event>) evtClass;
-                String str = evtC.getSimpleName();
-                define(str.substring(0, str.length() - "Event".length()), evtC);
-            }
-        }
-    }
+	/**
+	 * Registers a new EventExecutor.
+	 *
+	 * @param event
+	 * @param executor
+	 */
+	public void on(String event, EventExecutor executor) {
+		Class<? extends Event> clazz = events.get(event.toLowerCase());
+		if (clazz == null) {
+			plugin.getLogger().log(Level.WARNING, "Could not register event handler for event '" + event + "' because it does not exist.");
+			return;
+		}
+		Spout.getEventManager().registerEvent(clazz, Order.LATEST, executor, plugin);
+	}
 
-    /**
-     * Registers a new EventExecutor.
-     *
-     * @param event
-     * @param executor
-     */
-    public void on(String event, EventExecutor executor) {
-        Class<? extends Event> clazz = events.get(event.toLowerCase());
-        if (clazz == null) {
-            plugin.getLogger().log(Level.WARNING, "Could not register event '" + event + "' because it does not exist.");
-            return;
-        }
-        Spout.getEventManager().registerEvent(clazz, Order.LATEST, executor, plugin);
-    }
+	/**
+	 * Defines an event from a plugin.
+	 *
+	 * @param plugin
+	 * @param name
+	 * @param clazz
+	 */
+	public void define(Plugin plugin, String name, Class<? extends Event> clazz) {
+		define(plugin.getName() + ":" + name, clazz);
+	}
 
-    /**
-     * Defines an event from a plugin.
-     *
-     * @param plugin
-     * @param name
-     * @param clazz
-     */
-    public void define(Plugin plugin, String name, Class<? extends Event> clazz) {
-        define(plugin.getName() + ":" + name, clazz);
-    }
+	/**
+	 * Defines an event.
+	 *
+	 * @param name
+	 * @param clazz
+	 */
+	private void define(String name, Class<? extends Event> clazz) {
+		if (events.put(name.toLowerCase(), clazz) != null) {
+			plugin.getLogger().log(Level.WARNING, "Duplicate event registered: '" + name + "' for '" + clazz.getCanonicalName() + "'.");
+		}
+	}
 
-    /**
-     * Defines an event.
-     *
-     * @param name
-     * @param clazz
-     */
-    private void define(String name, Class<? extends Event> clazz) {
-        if (events.put(name.toLowerCase(), clazz) != null) {
-            plugin.getLogger().log(Level.WARNING, "Duplicate event registered: '" + name + "' for '" + clazz.getCanonicalName() + "'.");
-        }
-    }
+	private static List<Class<?>> getClasses(Package pkg) {
+		List<Class<?>> classes = new ArrayList<Class<?>>();
 
-    private static List<Class<?>> getClasses(Package pkg) {
-        List<Class<?>> classes = new ArrayList<Class<?>>();
+		String pkgname = pkg.getName();
+		String relPath = pkgname.replace('.', '/');
 
-        String pkgname = pkg.getName();
-        String relPath = pkgname.replace('.', '/');
+		// Get a File object for the package
+		URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
+		if (resource == null) {
+			throw new RuntimeException("Unexpected problem: No resource for " + relPath);
+		}
 
-        // Get a File object for the package
-        URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
-        if (resource == null) {
-            throw new RuntimeException("Unexpected problem: No resource for " + relPath);
-        }
+		resource.getPath();
+		if (resource.toString().startsWith("jar:")) {
+			processJarfile(resource, pkgname, classes);
+		} else {
+			processDirectory(new File(resource.getPath()), pkgname, classes);
+		}
 
-        resource.getPath();
-        if (resource.toString().startsWith("jar:")) {
-            processJarfile(resource, pkgname, classes);
-        } else {
-            processDirectory(new File(resource.getPath()), pkgname, classes);
-        }
+		List<Package> ps = new ArrayList<Package>();
+		for (Package pack : Package.getPackages()) {
+			if (pack.getName().startsWith(pkg.getName())) {
+				ps.add(pack);
+			}
+		}
 
-        List<Package> ps = new ArrayList<Package>();
-        for (Package pack : Package.getPackages()) {
-            if (pack.getName().startsWith(pkg.getName())) {
-                ps.add(pack);
-            }
-        }
+		return classes;
+	}
 
-        return classes;
-    }
+	private static void processDirectory(File directory, String pkgname, List<Class<?>> classes) {
+		// Get the list of the files contained in the package
+		String[] files = directory.list();
+		for (String fileName : files) {
+			String className = null;
+			// we are only interested in .class files
+			if (fileName.endsWith(".class")) {
+				// removes the .class extension
+				className = pkgname + '.' + fileName.substring(0, fileName.length() - 6);
+			}
+			if (className != null) {
+				classes.add(loadClass(className));
+			}
+			File subdir = new File(directory, fileName);
+			if (subdir.isDirectory()) {
+				processDirectory(subdir, pkgname + '.' + fileName, classes);
+			}
+		}
+	}
 
-    private static void processDirectory(File directory, String pkgname, List<Class<?>> classes) {
-        // Get the list of the files contained in the package
-        String[] files = directory.list();
-        for (String fileName : files) {
-            String className = null;
-            // we are only interested in .class files
-            if (fileName.endsWith(".class")) {
-                // removes the .class extension
-                className = pkgname + '.' + fileName.substring(0, fileName.length() - 6);
-            }
-            if (className != null) {
-                classes.add(loadClass(className));
-            }
-            File subdir = new File(directory, fileName);
-            if (subdir.isDirectory()) {
-                processDirectory(subdir, pkgname + '.' + fileName, classes);
-            }
-        }
-    }
+	private static void processJarfile(URL resource, String pkgname, List<Class<?>> classes) {
+		String relPath = pkgname.replace('.', '/');
+		String resPath = resource.getPath();
+		String jarPath = resPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
+		JarFile jarFile;
+		try {
+			jarFile = new JarFile(jarPath);
+		} catch (IOException e) {
+			throw new RuntimeException("Unexpected IOException reading JAR File '" + jarPath + "'", e);
+		}
+		Enumeration<JarEntry> entries = jarFile.entries();
+		while (entries.hasMoreElements()) {
+			JarEntry entry = entries.nextElement();
+			String entryName = entry.getName();
+			String className = null;
+			if (entryName.endsWith(".class") && entryName.startsWith(relPath) && entryName.length() > relPath.length() + "/".length()) {
+				className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
+			}
+			if (className != null) {
+				classes.add(loadClass(className));
+			}
+		}
 
-    private static void processJarfile(URL resource, String pkgname, List<Class<?>> classes) {
-        String relPath = pkgname.replace('.', '/');
-        String resPath = resource.getPath();
-        String jarPath = resPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
-        JarFile jarFile;
-        try {
-            jarFile = new JarFile(jarPath);
-        } catch (IOException e) {
-            throw new RuntimeException("Unexpected IOException reading JAR File '" + jarPath + "'", e);
-        }
-        Enumeration<JarEntry> entries = jarFile.entries();
-        while (entries.hasMoreElements()) {
-            JarEntry entry = entries.nextElement();
-            String entryName = entry.getName();
-            String className = null;
-            if (entryName.endsWith(".class") && entryName.startsWith(relPath) && entryName.length() > relPath.length() + "/".length()) {
-                className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
-            }
-            if (className != null) {
-                classes.add(loadClass(className));
-            }
-        }
+		try {
+			jarFile.close();
+		} catch (IOException e) {
+		}
+	}
 
-        try {
-            jarFile.close();
-        } catch (IOException e) {
-        }
-    }
-
-    private static Class<?> loadClass(String className) {
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Unexpected ClassNotFoundException loading class '" + className + "'");
-        }
-    }
+	private static Class<?> loadClass(String className) {
+		try {
+			return Class.forName(className);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Unexpected ClassNotFoundException loading class '" + className + "'");
+		}
+	}
 }

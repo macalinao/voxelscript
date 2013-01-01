@@ -38,7 +38,7 @@ public class ModuleFunction extends BaseFunction {
 		}
 
 		String moduleName = args[0].toString();
-		Object module = moduleManager.getModule(moduleName);
+		Object module = moduleManager.getModule(moduleName).getObject();
 
 		if (module != null) {
 			return Context.javaToJS(module, scope);

@@ -17,6 +17,7 @@
  */
 package com.simplyian.voxelscript.modules;
 
+import java.lang.Object;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -27,9 +28,10 @@ import org.spout.api.Spout;
 import com.simplyian.voxelscript.VoxelScriptPlugin;
 import com.simplyian.voxelscript.modules.commands.Commands;
 import com.simplyian.voxelscript.modules.events.Events;
+import org.spout.api.plugin.Plugin;
 
 public class ModuleManager {
-	private Map<String, Object> modules = new HashMap<String, Object>();
+	private Map<String, Module> modules = new HashMap<String, Module>();
 	private final VoxelScriptPlugin plugin;
 	private final ModuleFunction mf;
 
@@ -53,20 +55,23 @@ public class ModuleManager {
 	 * Registers the default modules.
 	 */
 	private void registerDefaults() {
-		registerModule("commands", new Commands(plugin));
-		registerModule("engine", Spout.getEngine());
-		registerModule("plugins", Spout.getEngine().getPluginManager());
-		registerModule("events", new Events(plugin));
+		registerModule(plugin, "commands", new Commands(plugin));
+		registerModule(plugin, "engine", Spout.getEngine());
+		registerModule(plugin, "plugins", Spout.getEngine().getPluginManager());
+		registerModule(plugin, "events", new Events(plugin));
 	}
+
 
 	/**
 	 * Registers a module with this ModuleManager.
 	 * 
+	 * @param plugin
 	 * @param name
-	 * @param module
+	 * @param object
 	 */
-	public void registerModule(String name, Object module) {
-		Object prev = modules.put(name, module);
+	public void registerModule(Plugin plugin, String name, Object object) {
+		Module module = new Module(plugin, name, object);
+		Module prev = modules.put(module.getFullName(), module);
 		if (prev != null) {
 			plugin.getLogger().log(Level.WARNING, "Reregistering of module '" + name + "' from '" + prev.getClass().getCanonicalName() + "' to '" + module.getClass().getCanonicalName() + "'.");
 		}
@@ -78,7 +83,7 @@ public class ModuleManager {
 	 * @param name
 	 * @return
 	 */
-	public Object getModule(String name) {
+	public Module getModule(String name) {
 		return modules.get(name);
 	}
 }

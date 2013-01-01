@@ -37,11 +37,16 @@ public class ModuleFunction extends BaseFunction {
 			return null;
 		}
 
-		String moduleName = args[0].toString();
-		Object module = moduleManager.getModule(moduleName).getObject();
+		String moduleName = args[0].toString().toLowerCase();
+		Module module = moduleManager.getModule(moduleName);
+		if (module == null) {
+			return null;
+		}
 
-		if (module != null) {
-			return Context.javaToJS(module, scope);
+		Object object = module.getObject();
+
+		if (object != null) {
+			return Context.javaToJS(object, scope);
 		}
 
 		return null;

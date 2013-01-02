@@ -1,7 +1,7 @@
 /*
  * This file is part of VoxelScript.
  *
- * Copyright (c) 2012-2012, THEDevTeam <http://thedevteam.org/>
+ * Copyright (c) 2012-2013, THEDevTeam <http://thedevteam.org/>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,16 @@
  */
 package com.simplyian.voxelscript.modules.events;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
+import com.simplyian.voxelscript.VoxelScriptPlugin;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Level;
-
 import org.spout.api.Spout;
 import org.spout.api.event.Event;
 import org.spout.api.event.EventExecutor;
 import org.spout.api.event.Order;
 import org.spout.api.plugin.Plugin;
 import org.spout.api.plugin.PluginManager;
-
-import com.simplyian.voxelscript.VoxelScriptPlugin;
 
 /**
  * The Events module.

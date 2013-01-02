@@ -175,7 +175,7 @@
 						<url>${project.organization.url}</url>
 						<license>Apache License Version 2</license>
 						<licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
-						<copyright>Copyright (c) ${project.inceptionYear}-2012, ${project.organization.name}</copyright>
+						<copyright>Copyright (c) ${project.inceptionYear}-2013, ${project.organization.name}</copyright>
 					</properties>
 					<includes>
 						<include>src/main/java/**</include>

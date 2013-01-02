@@ -1,7 +1,7 @@
 /*
  * This file is part of VoxelScript.
  *
- * Copyright (c) 2012-2012, THEDevTeam <http://thedevteam.org/>
+ * Copyright (c) 2012-2013, THEDevTeam <http://thedevteam.org/>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

@@ -91,7 +91,7 @@ public class Events {
 			plugin.getLogger().log(Level.WARNING, "Could not register event handler for event '" + event + "' because it does not exist.");
 			return;
 		}
-		Spout.getEventManager().registerEvent(clazz, Order.LATEST, executor, plugin);
+		Spout.getEventManager().registerEvent(clazz, Order.DEFAULT, executor, plugin);
 	}
 
 	/**

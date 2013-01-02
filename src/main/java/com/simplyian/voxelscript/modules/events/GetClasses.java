@@ -17,6 +17,7 @@
  */
 package com.simplyian.voxelscript.modules.events;
 
+import com.google.common.base.Joiner;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -38,28 +39,27 @@ class GetClasses {
 	 * @param includeChildren Includes child packages.
 	 * @return
 	 */
-	public static List<Class<?>> getClasses(Package pkg, boolean includeChildren) {
+	public static List<Class<?>> getClasses(String pkgName, ClassLoader loader, boolean includeChildren) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 
-		String pkgname = pkg.getName();
-		String relPath = pkgname.replace('.', '/');
+		String relPath = pkgName.replace('.', '/');
 
 		// Get a File object for the package
-		URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
+		URL resource = loader.getResource(relPath);
 		if (resource == null) {
 			throw new RuntimeException("Unexpected problem: No resource for " + relPath);
 		}
 
 		if (resource.toString().startsWith("jar:")) {
-			processJarfile(resource, pkgname, classes);
+			processJarfile(resource, pkgName, classes);
 		} else {
-			processDirectory(new File(resource.getPath()), pkgname, classes);
+			processDirectory(new File(resource.getPath()), pkgName, classes);
 		}
 
 		if (includeChildren) {
 			for (Package pack : Package.getPackages()) {
-				if (pack.getName().startsWith(pkg.getName())) {
-					classes.addAll(getClasses(pack, false));
+				if (pack.getName().startsWith(pkgName) && !pack.getName().equals(pkgName)) {
+					classes.addAll(getClasses(pack.getName(), loader, false));
 				}
 			}
 		}

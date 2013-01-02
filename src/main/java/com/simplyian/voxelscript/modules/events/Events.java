@@ -17,6 +17,7 @@
  */
 package com.simplyian.voxelscript.modules.events;
 
+import com.google.common.base.Joiner;
 import com.simplyian.voxelscript.VoxelScriptPlugin;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,11 +46,13 @@ public class Events {
 	}
 
 	private void initializeCoreEvents() {
-		defineAll("spout", "org.spout.api.event");
+		defineAll("spout", plugin.getClassLoader(), "org.spout.api.event");
 
 		PluginManager pm = Spout.getPluginManager();
-		if (pm.getPlugin("Vanilla") != null) {
-			defineAll("vanilla", "org.spout.vanilla.event");
+
+		Plugin vanilla = pm.getPlugin("Vanilla");
+		if (vanilla != null) {
+			defineAll("vanilla", vanilla.getClass().getClassLoader(), "org.spout.vanilla.event");
 		}
 	}
 
@@ -98,7 +101,7 @@ public class Events {
 	 * @param pkg
 	 */
 	public void defineAll(Plugin plugin, String pkg) {
-		defineAll(plugin.getName(), pkg);
+		defineAll(plugin.getName(), plugin.getClass().getClassLoader(), pkg);
 	}
 
 	/**
@@ -108,8 +111,8 @@ public class Events {
 	 * @param prefix The prefix of the event.
 	 * @param pkg
 	 */
-	private void defineAll(String prefix, String pkg) {
-		for (Class<?> evtClass : GetClasses.getClasses(Package.getPackage(pkg), true)) {
+	private void defineAll(String prefix, ClassLoader loader, String pkg) {
+		for (Class<?> evtClass : GetClasses.getClasses(pkg, loader, true)) {
 			if (!evtClass.isAssignableFrom(Event.class)) {
 				continue;
 			}

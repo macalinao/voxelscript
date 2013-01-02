@@ -55,27 +55,11 @@ public class Events {
 	}
 
 	private void initializeCoreEvents() {
-		defineEvents("org.spout.api.event");
+		defineAll("spout:", "org.spout.api.event");
 
 		PluginManager pm = Spout.getPluginManager();
 		if (pm.getPlugin("Vanilla") != null) {
-			defineEvents("org.spout.vanilla.event");
-		}
-	}
-	
-	/**
-	 * Defines all events in a given package recursively.
-	 * Note: Event classes must end in "Event".
-	 * 
-	 * @param pkg 
-	 */
-	public void defineEvents(String pkg) {
-		for (Class<?> evtClass : getClasses(Package.getPackage(pkg))) {
-			if (evtClass.isAssignableFrom(Event.class)) {
-				Class<Event> evtC = (Class<Event>) evtClass;
-				String str = evtC.getSimpleName();
-				define(str.substring(0, str.length() - "Event".length()), evtC);
-			}
+			defineAll("vanilla:", "org.spout.vanilla.event");
 		}
 	}
 
@@ -114,6 +98,40 @@ public class Events {
 	private void define(String name, Class<? extends Event> clazz) {
 		if (events.put(name.toLowerCase(), clazz) != null) {
 			plugin.getLogger().log(Level.WARNING, "Duplicate event registered: '" + name + "' for '" + clazz.getCanonicalName() + "'.");
+		}
+	}
+
+	/**
+	 * Defines all events in a given package recursively. Note: Event classes
+	 * must end in "Event".
+	 *
+	 * @param pkg
+	 */
+	public void defineAll(Plugin plugin, String pkg) {
+		defineAll(plugin.getName() + ":", pkg);
+	}
+
+	/**
+	 * Defines all events in a given package and all of its subpackages. Note:
+	 * Event classes must end in "Event".
+	 *
+	 * @param prefix The prefix of the event.
+	 * @param pkg
+	 */
+	private void defineAll(String prefix, String pkg) {
+		for (Class<?> evtClass : getClasses(Package.getPackage(pkg))) {
+			if (!evtClass.isAssignableFrom(Event.class)) {
+				continue;
+			}
+			Class<Event> evtC = (Class<Event>) evtClass;
+			String str = evtC.getSimpleName();
+
+			String eventName = str.substring(0, str.length() - "Event".length());
+			if (prefix != null) {
+				eventName = plugin.getName() + ":" + eventName;
+			}
+
+			define(eventName, evtC);
 		}
 	}
 

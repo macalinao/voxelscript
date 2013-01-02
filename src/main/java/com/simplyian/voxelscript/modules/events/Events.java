@@ -55,11 +55,11 @@ public class Events {
 	}
 
 	private void initializeCoreEvents() {
-		defineAll("spout:", "org.spout.api.event");
+		defineAll("spout", "org.spout.api.event");
 
 		PluginManager pm = Spout.getPluginManager();
 		if (pm.getPlugin("Vanilla") != null) {
-			defineAll("vanilla:", "org.spout.vanilla.event");
+			defineAll("vanilla", "org.spout.vanilla.event");
 		}
 	}
 
@@ -108,7 +108,7 @@ public class Events {
 	 * @param pkg
 	 */
 	public void defineAll(Plugin plugin, String pkg) {
-		defineAll(plugin.getName() + ":", pkg);
+		defineAll(plugin.getName(), pkg);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class Events {
 
 			String eventName = str.substring(0, str.length() - "Event".length());
 			if (prefix != null) {
-				eventName = plugin.getName() + ":" + eventName;
+				eventName = prefix + ":" + eventName;
 			}
 
 			define(eventName, evtC);

@@ -41,7 +41,7 @@ public class ScriptFunction extends BaseFunction {
 			return script.getExports();
 		}
 
-		return scriptManager.loadScript(cx, scope, scriptName);
+		return null;
 	}
 
 	@Override

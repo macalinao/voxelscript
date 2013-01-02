@@ -33,9 +33,15 @@ import com.simplyian.voxelscript.VoxelScriptPlugin;
 
 public class ScriptManager {
 	private final VoxelScriptPlugin plugin;
+
 	private final ScriptLoader loader;
+
 	private final ScriptFunction sf;
+
 	private final Map<String, Script> scripts = new HashMap<String, Script>();
+
+	private Scriptable mainScope;
+
 	private List<File> searchPaths;
 
 	public ScriptManager(VoxelScriptPlugin plugin) {
@@ -62,14 +68,14 @@ public class ScriptManager {
 
 	/**
 	 * Loads all scripts.
-	 * 
+	 *
 	 * @return
 	 */
 	public void loadScripts() {
 		try {
 			// Initialize the main scope
 			Context cx = Context.enter();
-			Scriptable mainScope = cx.initStandardObjects();
+			mainScope = cx.initStandardObjects();
 			plugin.getModuleManager().setupModuleFunction(mainScope);
 			plugin.getScriptManager().setupScriptFunction(mainScope);
 
@@ -80,16 +86,10 @@ public class ScriptManager {
 						continue;
 					}
 
-					Scriptable scriptScope = cx.newObject(mainScope);
-					scriptScope.setPrototype(mainScope);
-					scriptScope.setParentScope(null);
-
-					Script s = loader.loadScript(cx, scriptScope, name, file);
-					if (s != null) {
-						scripts.put(name.toLowerCase(), s);
-					}
+					loadScript(cx, mainScope, name, file);
 				}
 			}
+			mainScope = null;
 		} finally {
 			Context.exit();
 		}
@@ -97,28 +97,37 @@ public class ScriptManager {
 
 	/**
 	 * Gets the script with the given name.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
 	public Script getScript(String name) {
-		return scripts.get(name.toLowerCase());
+		Script s = scripts.get(name.toLowerCase());
+		if (s == null) {
+			// TODO load script if it isn't already loaded, and ensure that script doesn't get loaded more than once
+		}
+		return s;
 	}
 
-	public Script loadScript(Context cx, Scriptable scope, String name) {
-		// Look for the script
-		for (File path : searchPaths) {
-			for (File file : path.listFiles()) {
-				String fn = getScriptName(file);
-				if (fn == null || !fn.equalsIgnoreCase(name)) {
-					continue;
-				}
-				return loader.loadScript(cx, scope, fn, file);
-			}
-		}
+	/**
+	 * Loads a script.
+	 *
+	 * @param cx
+	 * @param scope
+	 * @param name
+	 * @param file
+	 * @return
+	 */
+	public Script loadScript(Context cx, Scriptable scope, String name, File file) {
+		Scriptable scriptScope = cx.newObject(scope);
+		scriptScope.setPrototype(scope);
+		scriptScope.setParentScope(null);
 
-		// Not found! TODO make some sort of exception
-		return null;
+		Script s = loader.loadScript(cx, scope, name, file);
+		if (s != null) {
+			scripts.put(name.toLowerCase(), s);
+		}
+		return s;
 	}
 
 	public String getScriptName(File file) {

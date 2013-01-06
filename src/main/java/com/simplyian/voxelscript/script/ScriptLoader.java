@@ -29,6 +29,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.simplyian.voxelscript.VoxelScriptPlugin;
+import java.io.IOException;
+import org.apache.commons.io.FileUtils;
 
 public class ScriptLoader {
 	private final VoxelScriptPlugin plugin;
@@ -36,53 +38,60 @@ public class ScriptLoader {
 	// Quick and dirty way to check if something is already being loaded
 	private Set<String> loading = new HashSet<String>();
 
+	private Context cx;
+
+	private Scriptable scope;
+
 	public ScriptLoader(VoxelScriptPlugin plugin) {
 		this.plugin = plugin;
 	}
 
 	/**
+	 * Initializes the script loader, preparing it for loading scripts.
+	 */
+	public void initialize() {
+		cx = Context.enter();
+		scope = cx.initStandardObjects();
+		plugin.getModuleManager().setupModuleFunction(scope);
+		plugin.getScriptManager().setupScriptFunction(scope);
+	}
+
+	/**
+	 * Destroys the script loader.
+	 */
+	public void destroy() {
+		Context.exit();
+	}
+
+	/**
 	 * Loads the given script.
-	 * 
+	 *
 	 * @param cx
 	 * @param scope
 	 * @param name
 	 * @param file
 	 * @return
 	 */
-	public Script loadScript(Context cx, Scriptable scope, String name, File file) {
+	public Script loadScript(String name, File file) throws IOException {
+		String script = FileUtils.readFileToString(file);
+		return loadScript(name, script);
+	}
+
+	/**
+	 * Loads the given script.
+	 *
+	 * @param cx
+	 * @param scope The scope to load the script into.
+	 * @param name
+	 * @param script
+	 * @return The loaded script.
+	 */
+	private Script loadScript(String name, String script) {
 		if (loading.contains(name.toLowerCase())) {
 			plugin.getLogger().log(Level.WARNING, "Circular dependency detected for a script wanting '" + name + "'. Stopping...");
 			return null;
 		}
 
-		int ch;
-		StringBuffer strContent = new StringBuffer("");
-		FileInputStream fin = null;
-		try {
-			fin = new FileInputStream(file);
-			while ((ch = fin.read()) != -1) {
-				strContent.append((char) ch);
-			}
-			fin.close();
-		} catch (Exception ex) {
-			plugin.getLogger().log(Level.SEVERE, "Could not read script " + file.getName() + "!", ex);
-		}
-
-		String script = strContent.toString();
-		return loadScript(cx, scope, name, script);
-	}
-
-	/**
-	 * Loads the given script.
-	 * 
-	 * @param cx
-	 * @param scope
-	 *            The scope to load the script into.
-	 * @param name
-	 * @param script
-	 * @return The loaded script.
-	 */
-	private Script loadScript(Context cx, Scriptable scope, String name, String script) {
 		try {
 			// Execute the JS
 			loading.add(name.toLowerCase());
@@ -100,7 +109,10 @@ public class ScriptLoader {
 			// Create the script
 			return new Script(meta, exports);
 		} catch (EcmaError ex) {
-			plugin.getLogger().log(Level.SEVERE, "Could not enable script '" + name + "' due to error", ex);
+			plugin.getLogger().log(Level.SEVERE, "JavaScript error: could not finish running the script '" + name + "'.", ex);
+			return null;
+		} catch (Exception ex) {
+			plugin.getLogger().log(Level.SEVERE, "An error occured while executing the script '" + name + "'.", ex);
 			return null;
 		}
 	}

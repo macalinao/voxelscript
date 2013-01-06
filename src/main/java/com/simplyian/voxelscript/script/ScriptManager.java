@@ -30,6 +30,8 @@ import org.mozilla.javascript.Scriptable;
 
 import com.google.common.collect.Lists;
 import com.simplyian.voxelscript.VoxelScriptPlugin;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 public class ScriptManager {
 	private final VoxelScriptPlugin plugin;
@@ -40,25 +42,19 @@ public class ScriptManager {
 
 	private final Map<String, Script> scripts = new HashMap<String, Script>();
 
-	private Scriptable mainScope;
-
-	private List<File> searchPaths;
+	private File scriptFolder;
 
 	public ScriptManager(VoxelScriptPlugin plugin) {
 		this.plugin = plugin;
-		this.loader = new ScriptLoader(plugin);
-		this.sf = new ScriptFunction(this);
 
-		this.searchPaths = Lists.newArrayList(new File(plugin.getDataFolder(), "scripts/"));
+		loader = new ScriptLoader(plugin);
+		loader.initialize();
 
-		setupSearchPaths();
-	}
+		sf = new ScriptFunction(this);
+		scriptFolder = new File(plugin.getDataFolder(), "scripts/");
 
-	private void setupSearchPaths() {
-		for (File path : searchPaths) {
-			if (!path.exists() && !path.mkdirs()) {
-				plugin.getLogger().log(Level.SEVERE, "Could not create the following script directory: " + path.getPath());
-			}
+		if (!scriptFolder.exists() && !scriptFolder.mkdirs()) {
+			plugin.getLogger().log(Level.SEVERE, "Could not create the following script directory: " + scriptFolder.getPath());
 		}
 	}
 
@@ -72,26 +68,13 @@ public class ScriptManager {
 	 * @return
 	 */
 	public void loadScripts() {
-		try {
-			// Initialize the main scope
-			Context cx = Context.enter();
-			mainScope = cx.initStandardObjects();
-			plugin.getModuleManager().setupModuleFunction(mainScope);
-			plugin.getScriptManager().setupScriptFunction(mainScope);
-
-			for (File path : searchPaths) {
-				for (File file : path.listFiles()) {
-					String name = getScriptName(file);
-					if (name == null) {
-						continue;
-					}
-
-					loadScript(cx, mainScope, name, file);
-				}
+		for (File file : scriptFolder.listFiles()) {
+			String name = getScriptName(file);
+			if (name == null) {
+				continue;
 			}
-			mainScope = null;
-		} finally {
-			Context.exit();
+
+			getScript(name);
 		}
 	}
 
@@ -102,41 +85,52 @@ public class ScriptManager {
 	 * @return
 	 */
 	public Script getScript(String name) {
-		Script s = scripts.get(name.toLowerCase());
+		name = name.toLowerCase();
+		Script s = scripts.get(name);
 		if (s == null) {
-			// TODO load script if it isn't already loaded, and ensure that script doesn't get loaded more than once
+			File file = getFile(name);
+
+			try {
+				s = loader.loadScript(name, file);
+			} catch (IOException ex) {
+				plugin.getLogger().log(Level.SEVERE, "Could not read script file due to error!");
+			}
+
+			scripts.put(name, s);
 		}
 		return s;
 	}
 
 	/**
-	 * Loads a script.
+	 * Gets the file corresponding with the given script name.
 	 *
-	 * @param cx
-	 * @param scope
-	 * @param name
+	 * @param scriptName
+	 * @return
+	 */
+	public File getFile(String scriptName) {
+		if (scriptName.endsWith(".js")) {
+			return new File(scriptFolder.getPath(), scriptName);
+		}
+		return new File(scriptFolder.getPath(), scriptName + ".js");
+	}
+
+	/**
+	 * Gets the name of the script from its file.
+	 *
 	 * @param file
 	 * @return
 	 */
-	public Script loadScript(Context cx, Scriptable scope, String name, File file) {
-		Scriptable scriptScope = cx.newObject(scope);
-		scriptScope.setPrototype(scope);
-		scriptScope.setParentScope(null);
-
-		Script s = loader.loadScript(cx, scope, name, file);
-		if (s != null) {
-			scripts.put(name.toLowerCase(), s);
+	public static String getScriptName(File file) {
+		if (!file.isFile()) {
+			return null;
+			
 		}
-		return s;
-	}
 
-	public String getScriptName(File file) {
-		if (file.isFile()) {
-			String fileName = file.getName();
-			if (fileName.endsWith(".js")) {
-				return fileName.substring(0, fileName.length() - 3);
-			}
+		String fileName = file.getName();
+		if (!fileName.endsWith(".js")) {
+			return null;
 		}
-		return null;
+
+		return fileName.substring(0, fileName.length() - ".js".length());
 	}
 }

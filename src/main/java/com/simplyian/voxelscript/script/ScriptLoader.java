@@ -49,7 +49,7 @@ public class ScriptLoader {
 	/**
 	 * Initializes the script loader, preparing it for loading scripts.
 	 */
-	public void initialize() {
+	public void begin() {
 		cx = Context.enter();
 		scope = cx.initStandardObjects();
 		plugin.getModuleManager().setupModuleFunction(scope);
@@ -57,9 +57,9 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * Destroys the script loader.
+	 * Ends the loading process.
 	 */
-	public void destroy() {
+	public void end() {
 		Context.exit();
 	}
 
@@ -73,8 +73,7 @@ public class ScriptLoader {
 	 * @return
 	 */
 	public Script loadScript(String name, File file) throws IOException {
-		String script = FileUtils.readFileToString(file);
-		return loadScript(name, script);
+		return loadScript(name, FileUtils.readFileToString(file));
 	}
 
 	/**

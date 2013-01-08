@@ -48,7 +48,6 @@ public class ScriptManager {
 		this.plugin = plugin;
 
 		loader = new ScriptLoader(plugin);
-		loader.initialize();
 
 		sf = new ScriptFunction(this);
 		scriptFolder = new File(plugin.getDataFolder(), "scripts/");
@@ -68,6 +67,7 @@ public class ScriptManager {
 	 * @return
 	 */
 	public void loadScripts() {
+		loader.begin();
 		for (File file : scriptFolder.listFiles()) {
 			String name = getScriptName(file);
 			if (name == null) {
@@ -76,6 +76,7 @@ public class ScriptManager {
 
 			getScript(name);
 		}
+		loader.end();
 	}
 
 	/**

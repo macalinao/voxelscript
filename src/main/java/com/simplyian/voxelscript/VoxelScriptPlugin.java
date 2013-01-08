@@ -34,8 +34,9 @@ public class VoxelScriptPlugin extends CommonPlugin {
 		_instance = this;
 
 		moduleManager = new ModuleManager(this);
+		
+		getLogger().log(Level.INFO, "Loading scripts...");
 		scriptManager = new ScriptManager(this);
-
 		scriptManager.loadScripts();
 
 		getLogger().log(Level.INFO, "VoxelScript enabled!");

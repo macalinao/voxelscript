@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 public class ScriptManager {
 	private final VoxelScriptPlugin plugin;
 
-	private final ScriptLoader loader;
+	private final JSLoader loader;
 
 	private final ScriptFunction sf;
 
@@ -44,10 +44,9 @@ public class ScriptManager {
 
 	private File scriptFolder;
 
-	public ScriptManager(VoxelScriptPlugin plugin) {
+	public ScriptManager(VoxelScriptPlugin plugin, JSLoader loader) {
 		this.plugin = plugin;
-
-		loader = new ScriptLoader(plugin);
+		this.loader = loader;
 
 		sf = new ScriptFunction(this);
 		scriptFolder = new File(plugin.getDataFolder(), "scripts/");
@@ -67,8 +66,11 @@ public class ScriptManager {
 	 * @return
 	 */
 	public void loadScripts() {
-		loader.begin();
 		for (File file : scriptFolder.listFiles()) {
+			if (file.isDirectory()) {
+				continue;
+			}
+
 			String name = getScriptName(file);
 			if (name == null) {
 				continue;
@@ -76,7 +78,6 @@ public class ScriptManager {
 
 			getScript(name);
 		}
-		loader.end();
 	}
 
 	/**
@@ -89,7 +90,7 @@ public class ScriptManager {
 		name = name.toLowerCase();
 		Script s = scripts.get(name);
 		if (s == null) {
-			File file = getFile(name);
+			File file = getScriptFile(name);
 
 			try {
 				s = loader.loadScript(name, file);
@@ -108,7 +109,7 @@ public class ScriptManager {
 	 * @param scriptName
 	 * @return
 	 */
-	public File getFile(String scriptName) {
+	public File getScriptFile(String scriptName) {
 		if (scriptName.endsWith(".js")) {
 			return new File(scriptFolder.getPath(), scriptName);
 		}
@@ -124,7 +125,7 @@ public class ScriptManager {
 	public static String getScriptName(File file) {
 		if (!file.isFile()) {
 			return null;
-			
+
 		}
 
 		String fileName = file.getName();

@@ -32,7 +32,7 @@ import com.simplyian.voxelscript.VoxelScriptPlugin;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 
-public class ScriptLoader {
+public class JSLoader {
 	private final VoxelScriptPlugin plugin;
 
 	// Quick and dirty way to check if something is already being loaded
@@ -42,7 +42,7 @@ public class ScriptLoader {
 
 	private Scriptable scope;
 
-	public ScriptLoader(VoxelScriptPlugin plugin) {
+	public JSLoader(VoxelScriptPlugin plugin) {
 		this.plugin = plugin;
 	}
 
@@ -61,6 +61,10 @@ public class ScriptLoader {
 	 */
 	public void end() {
 		Context.exit();
+	}
+
+	public Package loadPackage(String name, File dir) throws IOException {
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	/**
@@ -92,21 +96,21 @@ public class ScriptLoader {
 		}
 
 		try {
+			Scriptable scriptScope = cx.newObject(scope);
+			scriptScope.setPrototype(scope);
+			scriptScope.setParentScope(null);
+			
 			// Execute the JS
 			loading.add(name.toLowerCase());
-			cx.evaluateString(scope, "var meta = {}; var exports = {};", name, 1, null);
-			cx.evaluateString(scope, script, name, 1, null);
+			cx.evaluateString(scriptScope, "var exports = {};", name, 1, null);
+			cx.evaluateString(scriptScope, script, name, 1, null);
 			loading.remove(name.toLowerCase());
 
-			// Get the meta
-			Scriptable rawMeta = (Scriptable) ScriptableObject.getProperty(scope, "meta");
-			ScriptMeta meta = ScriptMeta.loadMeta(name, rawMeta);
-
-			// And the exports
+			// Get the exports
 			Scriptable exports = (Scriptable) ScriptableObject.getProperty(scope, "exports");
 
 			// Create the script
-			return new Script(meta, exports);
+			return new Script(name, exports);
 		} catch (EcmaError ex) {
 			plugin.getLogger().log(Level.SEVERE, "JavaScript error: could not finish running the script '" + name + "'.", ex);
 			return null;

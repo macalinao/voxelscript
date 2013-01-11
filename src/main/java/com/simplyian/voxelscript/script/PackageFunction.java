@@ -17,30 +17,35 @@
  */
 package com.simplyian.voxelscript.script;
 
+import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
-/**
- * A single, executable JavaScript file.
- */
-public class Script {
-	private final String name;
-	private final Scriptable exports;
+public class PackageFunction extends BaseFunction {
+	private final PackageManager packageManager;
 
-	Script(String name, Scriptable exports) {
-		this.name = name;
-		this.exports = exports;
-	}
-
-	public Scriptable getExports() {
-		return exports;
-	}
-
-	public String getName() {
-		return name;
+	public PackageFunction(PackageManager packageManager) {
+		this.packageManager = packageManager;
 	}
 
 	@Override
-	public String toString() {
-		return "Script: " + getName();
+	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+		if (args.length < 1) {
+			return null;
+		}
+
+		String packageName = args[0].toString();
+		Package pkg = packageManager.getPackage(packageName);
+
+		if (pkg != null) {
+			return pkg.getExports();
+		}
+
+		return null;
+	}
+
+	@Override
+	public Scriptable construct(Context cx, Scriptable scope, Object[] args) {
+		throw new RuntimeException("Cannot invoke package() as a constructor!");
 	}
 }

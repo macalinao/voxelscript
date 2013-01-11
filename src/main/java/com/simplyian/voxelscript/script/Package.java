@@ -20,27 +20,23 @@ package com.simplyian.voxelscript.script;
 import org.mozilla.javascript.Scriptable;
 
 /**
- * A single, executable JavaScript file.
+ * A multi-file bundle of scripts.
  */
-public class Script {
-	private final String name;
+public class Package {
+	private final PackageDescription desc;
+
 	private final Scriptable exports;
 
-	Script(String name, Scriptable exports) {
-		this.name = name;
+	Package(PackageDescription desc, Scriptable exports) {
+		this.desc = desc;
 		this.exports = exports;
+	}
+
+	public PackageDescription getDescription() {
+		return desc;
 	}
 
 	public Scriptable getExports() {
 		return exports;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public String toString() {
-		return "Script: " + getName();
 	}
 }

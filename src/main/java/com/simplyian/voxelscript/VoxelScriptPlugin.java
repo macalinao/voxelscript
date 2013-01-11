@@ -22,11 +22,17 @@ import java.util.logging.Level;
 import org.spout.api.plugin.CommonPlugin;
 
 import com.simplyian.voxelscript.modules.ModuleManager;
+import com.simplyian.voxelscript.script.JSLoader;
+import com.simplyian.voxelscript.script.PackageManager;
 import com.simplyian.voxelscript.script.ScriptManager;
 
 public class VoxelScriptPlugin extends CommonPlugin {
 	private static VoxelScriptPlugin _instance;
+
 	private ModuleManager moduleManager;
+
+	private PackageManager packageManager;
+
 	private ScriptManager scriptManager;
 
 	@Override
@@ -34,10 +40,15 @@ public class VoxelScriptPlugin extends CommonPlugin {
 		_instance = this;
 
 		moduleManager = new ModuleManager(this);
-		
-		getLogger().log(Level.INFO, "Loading scripts...");
-		scriptManager = new ScriptManager(this);
+
+		getLogger().log(Level.INFO, "Loading scripts and packages...");
+		JSLoader loader = new JSLoader(this);
+		loader.begin();
+		packageManager = new PackageManager(this, loader);
+		scriptManager = new ScriptManager(this, loader);
+		packageManager.loadPackages();
 		scriptManager.loadScripts();
+		loader.end();
 
 		getLogger().log(Level.INFO, "VoxelScript enabled!");
 	}

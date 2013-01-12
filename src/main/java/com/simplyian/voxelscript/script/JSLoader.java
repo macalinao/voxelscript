@@ -103,7 +103,9 @@ public class JSLoader {
 			return null;
 		}
 
+		loadingPackages.add(name.toLowerCase());
 		Scriptable exports = runScript(name, script, packageScope);
+		loadingPackages.remove(name.toLowerCase());
 		if (exports == null) {
 			return null;
 		}
@@ -126,7 +128,9 @@ public class JSLoader {
 			return null;
 		}
 
+		loadingScripts.add(name.toLowerCase());
 		Scriptable exports = runScript(name, script);
+		loadingScripts.remove(name.toLowerCase());
 		if (exports == null) {
 			return null;
 		}
@@ -159,10 +163,8 @@ public class JSLoader {
 			scriptScope.setParentScope(parentScope);
 
 			// Execute the JS
-			loadingScripts.add(name.toLowerCase());
 			cx.evaluateString(scriptScope, "var exports = {};", name, 1, null);
 			cx.evaluateString(scriptScope, script, name, 1, null);
-			loadingScripts.remove(name.toLowerCase());
 
 			// Get the exports
 			Object exportsObj = ScriptableObject.getProperty(scriptScope, "exports");

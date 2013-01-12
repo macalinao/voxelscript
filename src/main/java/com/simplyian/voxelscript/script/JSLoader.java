@@ -80,6 +80,7 @@ public class JSLoader {
 		packageScope.setPrototype(scope);
 		packageScope.setParentScope(scope);
 		packageScope.put("include", scope, new IncludeFunction(plugin, dir, this, packageScope));
+		packageScope.put("resource", scope, new ResourceFunction(plugin, dir));
 
 		File mainFile = null;
 		PackageDescription desc = null;

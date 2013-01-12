@@ -47,6 +47,6 @@ public class ResourceFunction extends BaseFunction {
 
 	@Override
 	public Scriptable construct(Context cx, Scriptable scope, Object[] args) {
-		throw new RuntimeException("Cannot invoke import() as a constructor!");
+		throw new RuntimeException("Cannot invoke resource() as a constructor!");
 	}
 }

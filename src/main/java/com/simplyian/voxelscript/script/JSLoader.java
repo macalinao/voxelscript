@@ -37,7 +37,9 @@ public class JSLoader {
 	private final VoxelScriptPlugin plugin;
 
 	// Quick and dirty way to check if something is already being loaded
-	private Set<String> loading = new HashSet<String>();
+	private Set<String> loadingPackages = new HashSet<String>();
+
+	private Set<String> loadingScripts = new HashSet<String>();
 
 	private Context cx;
 
@@ -77,10 +79,35 @@ public class JSLoader {
 		Scriptable packageScope = cx.newObject(scope);
 		packageScope.setPrototype(scope);
 		packageScope.setParentScope(scope);
-		packageScope.put("import", scope, new ImportFunction(plugin, dir, this, packageScope));
+		packageScope.put("include", scope, new IncludeFunction(plugin, dir, this, packageScope));
 
-		// TODO load packages
-		return null;
+		File mainFile = null;
+		PackageDescription desc = null;
+
+		File packageJson = new File(dir.getPath(), "package.json");
+		if (!packageJson.exists()) {
+			plugin.getLogger().log(Level.WARNING, "A package.json was not found for the package '" + name + "'.");
+			mainFile = new File(dir.getPath(), "index.js");
+			if (!mainFile.exists()) {
+				plugin.getLogger().log(Level.WARNING, "An index.js was not found for the package '" + name + "'. This package was not loaded.");
+				return null;
+			}
+			desc = PackageDescription.load(name, null);
+		} else {
+			// TODO load package.json
+		}
+
+		String script = FileUtils.readFileToString(mainFile);
+		if (loadingPackages.contains(name.toLowerCase())) {
+			plugin.getLogger().log(Level.WARNING, "Circular dependency detected for something wanting package '" + name + "'. Stopping...");
+			return null;
+		}
+
+		Scriptable exports = runScript(name, script, packageScope);
+		if (exports == null) {
+			return null;
+		}
+		return new Package(desc, exports);
 	}
 
 	/**
@@ -94,8 +121,8 @@ public class JSLoader {
 	 */
 	public Script loadScript(String name, File file) throws IOException {
 		String script = FileUtils.readFileToString(file);
-		if (loading.contains(name.toLowerCase())) {
-			plugin.getLogger().log(Level.WARNING, "Circular dependency detected for a script wanting '" + name + "'. Stopping...");
+		if (loadingScripts.contains(name.toLowerCase())) {
+			plugin.getLogger().log(Level.WARNING, "Circular dependency detected for something wanting script '" + name + "'. Stopping...");
 			return null;
 		}
 
@@ -132,10 +159,10 @@ public class JSLoader {
 			scriptScope.setParentScope(parentScope);
 
 			// Execute the JS
-			loading.add(name.toLowerCase());
+			loadingScripts.add(name.toLowerCase());
 			cx.evaluateString(scriptScope, "var exports = {};", name, 1, null);
 			cx.evaluateString(scriptScope, script, name, 1, null);
-			loading.remove(name.toLowerCase());
+			loadingScripts.remove(name.toLowerCase());
 
 			// Get the exports
 			Object exportsObj = ScriptableObject.getProperty(scriptScope, "exports");

@@ -31,11 +31,36 @@ public class PackageDescription {
 
 	private String version;
 
+	private String main;
+
 	private PackageDescription() {
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public String getMain() {
+		return main;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 
 	static PackageDescription load(String name, Map<String, Object> args) {
 		PackageDescription pd = new PackageDescription();
+		if (args == null) {
+			return pd;
+		}
 
 		Object pdName = args.get("name");
 		if (pdName != null) {
@@ -43,20 +68,25 @@ public class PackageDescription {
 		} else {
 			pd.name = pdName.toString();
 		}
-		
+
 		Object desc = args.get("desc");
 		if (desc != null) {
 			pd.desc = desc.toString();
 		}
-		
+
 		Object author = args.get("author");
 		if (author != null) {
 			pd.author = author.toString();
 		}
-		
+
 		Object version = args.get("version");
 		if (version != null) {
 			pd.version = version.toString();
+		}
+
+		Object main = args.get("main");
+		if (main != null) {
+			pd.main = main.toString();
 		}
 
 		return pd;

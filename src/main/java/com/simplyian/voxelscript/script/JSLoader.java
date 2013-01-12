@@ -31,6 +31,7 @@ import org.mozilla.javascript.ScriptableObject;
 import com.simplyian.voxelscript.VoxelScriptPlugin;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
+import org.mozilla.javascript.*;
 
 public class JSLoader {
 	private final VoxelScriptPlugin plugin;
@@ -53,6 +54,7 @@ public class JSLoader {
 		cx = Context.enter();
 		scope = cx.initStandardObjects();
 		plugin.getModuleManager().setupModuleFunction(scope);
+		plugin.getPackageManager().setupPackageFunction(scope);
 		plugin.getScriptManager().setupScriptFunction(scope);
 	}
 
@@ -99,7 +101,7 @@ public class JSLoader {
 			Scriptable scriptScope = cx.newObject(scope);
 			scriptScope.setPrototype(scope);
 			scriptScope.setParentScope(null);
-			
+
 			// Execute the JS
 			loading.add(name.toLowerCase());
 			cx.evaluateString(scriptScope, "var exports = {};", name, 1, null);
@@ -107,7 +109,11 @@ public class JSLoader {
 			loading.remove(name.toLowerCase());
 
 			// Get the exports
-			Scriptable exports = (Scriptable) ScriptableObject.getProperty(scope, "exports");
+			Object exportsObj = ScriptableObject.getProperty(scriptScope, "exports");
+			Scriptable exports = null;
+			if (exportsObj instanceof Scriptable) {
+				exports = (Scriptable) exportsObj;
+			}
 
 			// Create the script
 			return new Script(name, exports);

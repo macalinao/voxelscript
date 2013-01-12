@@ -45,6 +45,9 @@ public class PackageManager {
 
 		pf = new PackageFunction(this);
 		packageFolder = new File(plugin.getDataFolder(), "packages/");
+		if (!packageFolder.exists() && !packageFolder.mkdirs()) {
+			plugin.getLogger().log(Level.SEVERE, "Could not create the following script directory: " + packageFolder.getPath());
+		}
 	}
 
 	public void setupPackageFunction(Scriptable scope) {
@@ -71,6 +74,12 @@ public class PackageManager {
 		}
 	}
 
+	/**
+	 * Gets the package with the given name.
+	 *
+	 * @param name
+	 * @return
+	 */
 	public Package getPackage(String name) {
 		name = name.toLowerCase();
 		Package p = packages.get(name);

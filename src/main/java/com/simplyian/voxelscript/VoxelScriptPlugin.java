@@ -43,9 +43,9 @@ public class VoxelScriptPlugin extends CommonPlugin {
 
 		getLogger().log(Level.INFO, "Loading scripts and packages...");
 		JSLoader loader = new JSLoader(this);
-		loader.begin();
 		packageManager = new PackageManager(this, loader);
 		scriptManager = new ScriptManager(this, loader);
+		loader.begin();
 		packageManager.loadPackages();
 		scriptManager.loadScripts();
 		loader.end();
@@ -60,6 +60,10 @@ public class VoxelScriptPlugin extends CommonPlugin {
 
 	public ModuleManager getModuleManager() {
 		return moduleManager;
+	}
+	
+	public PackageManager getPackageManager() {
+		return packageManager;
 	}
 
 	public ScriptManager getScriptManager() {

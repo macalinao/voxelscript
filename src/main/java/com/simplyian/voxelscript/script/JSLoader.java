@@ -65,8 +65,22 @@ public class JSLoader {
 		Context.exit();
 	}
 
+	/**
+	 * Loads a package provided its directory.
+	 *
+	 * @param name
+	 * @param dir
+	 * @return
+	 * @throws IOException
+	 */
 	public Package loadPackage(String name, File dir) throws IOException {
-		throw new UnsupportedOperationException("Not yet implemented");
+		Scriptable packageScope = cx.newObject(scope);
+		packageScope.setPrototype(scope);
+		packageScope.setParentScope(scope);
+		packageScope.put("import", scope, new ImportFunction(plugin, dir, this, packageScope));
+
+		// TODO load packages
+		return null;
 	}
 
 	/**
@@ -79,28 +93,43 @@ public class JSLoader {
 	 * @return
 	 */
 	public Script loadScript(String name, File file) throws IOException {
-		return loadScript(name, FileUtils.readFileToString(file));
-	}
-
-	/**
-	 * Loads the given script.
-	 *
-	 * @param cx
-	 * @param scope The scope to load the script into.
-	 * @param name
-	 * @param script
-	 * @return The loaded script.
-	 */
-	private Script loadScript(String name, String script) {
+		String script = FileUtils.readFileToString(file);
 		if (loading.contains(name.toLowerCase())) {
 			plugin.getLogger().log(Level.WARNING, "Circular dependency detected for a script wanting '" + name + "'. Stopping...");
 			return null;
 		}
 
+		Scriptable exports = runScript(name, script);
+		if (exports == null) {
+			return null;
+		}
+		return new Script(name, exports);
+	}
+
+	/**
+	 * Runs a script under the default scope.
+	 *
+	 * @param name
+	 * @param script
+	 * @return
+	 */
+	Scriptable runScript(String name, String script) {
+		return runScript(name, script, scope);
+	}
+
+	/**
+	 * Runs a script.
+	 *
+	 * @param name
+	 * @param script
+	 * @param importFunction The import function.
+	 * @return The exports of the script.
+	 */
+	Scriptable runScript(String name, String script, Scriptable parentScope) {
 		try {
-			Scriptable scriptScope = cx.newObject(scope);
-			scriptScope.setPrototype(scope);
-			scriptScope.setParentScope(null);
+			Scriptable scriptScope = cx.newObject(parentScope);
+			scriptScope.setPrototype(parentScope);
+			scriptScope.setParentScope(parentScope);
 
 			// Execute the JS
 			loading.add(name.toLowerCase());
@@ -116,7 +145,7 @@ public class JSLoader {
 			}
 
 			// Create the script
-			return new Script(name, exports);
+			return exports;
 		} catch (EcmaError ex) {
 			plugin.getLogger().log(Level.SEVERE, "JavaScript error: could not finish running the script '" + name + "'.", ex);
 			return null;

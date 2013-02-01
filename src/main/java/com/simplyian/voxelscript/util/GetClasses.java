@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.simplyian.voxelscript.modules.events;
+package com.simplyian.voxelscript.util;
 
 import com.google.common.base.Joiner;
 import java.io.File;
@@ -31,7 +31,7 @@ import java.util.jar.JarFile;
  *
  * @author simplyianm
  */
-class GetClasses {
+public class GetClasses {
 	/**
 	 * Gets all of the classes in a package.
 	 *

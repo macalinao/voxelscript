@@ -17,6 +17,7 @@
  */
 package com.simplyian.voxelscript.modules.events;
 
+import com.simplyian.voxelscript.util.GetClasses;
 import com.google.common.base.Joiner;
 import com.simplyian.voxelscript.VoxelScriptPlugin;
 import java.util.HashMap;

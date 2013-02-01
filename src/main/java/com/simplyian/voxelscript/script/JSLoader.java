@@ -57,7 +57,6 @@ public class JSLoader {
 		scope = cx.initStandardObjects();
 		plugin.getModuleManager().setupModuleFunction(scope);
 		plugin.getPackageManager().setupPackageFunction(scope);
-		plugin.getScriptManager().setupScriptFunction(scope);
 	}
 
 	/**

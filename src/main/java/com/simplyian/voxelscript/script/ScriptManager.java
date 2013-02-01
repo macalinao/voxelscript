@@ -38,8 +38,6 @@ public class ScriptManager {
 
 	private final JSLoader loader;
 
-	private final ScriptFunction sf;
-
 	private final Map<String, Script> scripts = new HashMap<String, Script>();
 
 	private File scriptFolder;
@@ -48,16 +46,11 @@ public class ScriptManager {
 		this.plugin = plugin;
 		this.loader = loader;
 
-		sf = new ScriptFunction(this);
 		scriptFolder = new File(plugin.getDataFolder(), "scripts/");
 
 		if (!scriptFolder.exists() && !scriptFolder.mkdirs()) {
 			plugin.getLogger().log(Level.SEVERE, "Could not create the following script directory: " + scriptFolder.getPath());
 		}
-	}
-
-	public void setupScriptFunction(Scriptable scope) {
-		scope.put("script", scope, sf);
 	}
 
 	/**
